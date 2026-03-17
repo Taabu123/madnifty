@@ -1,0 +1,3089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>◈ MadNifty Terminal — Kite Connect Live</title>
+<meta name="description" content="Professional options terminal with live Kite Connect data">
+<meta name="theme-color" content="#020509">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #020509;
+  --bg1:   #060d14;
+  --bg2:   #0a1520;
+  --bg3:   #0f1f30;
+  --amber: #f59e0b;
+  --amber2:#fbbf24;
+  --green: #22c55e;
+  --green2:#4ade80;
+  --red:   #ef4444;
+  --red2:  #f87171;
+  --blue:  #38bdf8;
+  --white: #e2eef8;
+  --gray:  #4a6478;
+  --gray2: #2a3f52;
+  --border:#152030;
+  --bord2: #1e3448;
+  --font:  'JetBrains Mono','IBM Plex Mono',monospace;
+  --font2: 'Rajdhani',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--white);font-family:var(--font);font-size:12px;}
+
+/* ──────────── SCROLLBAR ──────────── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bord2);border-radius:2px;}
+
+/* ──────────── LOADING OVERLAY ──────────── */
+#loadOverlay{
+  position:fixed;inset:0;background:#020509f0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:999;gap:14px;
+}
+.load-sym{font-size:36px;color:var(--amber);animation:pulse 1.4s ease-in-out infinite;}
+.load-txt{font-size:11px;letter-spacing:3px;color:var(--gray);}
+.load-bar{width:200px;height:2px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.load-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--green));width:0%;transition:width 0.4s ease;border-radius:2px;}
+
+/* ──────────── LOGIN SCREEN ──────────── */
+#loginScreen{
+  height:100%;overflow-y:auto;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 900px 500px at 50% -50px, #0c2240 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 80% 80%, #0a1a0a 0%, transparent 60%);
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:28px 16px 60px;
+}
+.login-wrap{width:100%;max-width:460px;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.l-sym{
+  font-size:44px;color:var(--amber);display:block;line-height:1;margin-bottom:10px;
+  filter:drop-shadow(0 0 24px #f59e0b55);
+  animation:glow 3s ease-in-out infinite;
+}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 16px #f59e0b44);}50%{filter:drop-shadow(0 0 32px #f59e0b99);}}
+.l-name{font-family:var(--font2);font-size:26px;font-weight:700;letter-spacing:5px;color:var(--white);}
+.l-sub{font-size:9px;color:var(--gray);letter-spacing:2px;margin-top:4px;}
+.l-tag{
+  display:inline-block;font-size:8px;font-weight:800;letter-spacing:2px;
+  padding:3px 10px;border-radius:10px;margin-top:8px;
+  background:#22c55e18;border:1px solid #22c55e44;color:var(--green);
+}
+
+/* Step cards */
+.scard{
+  background:var(--bg2);border:1px solid var(--bord2);border-radius:10px;
+  padding:18px 20px;margin-bottom:10px;transition:border-color 0.25s,box-shadow 0.25s;
+}
+.scard.glowing{border-color:var(--amber);box-shadow:0 0 22px #f59e0b1a;}
+.scard.done{border-color:var(--green)44;}
+.snum{font-size:8px;font-weight:800;letter-spacing:3px;color:var(--amber);margin-bottom:5px;}
+.stitle{font-size:13px;font-weight:700;color:var(--white);margin-bottom:10px;}
+.sdesc{font-size:10px;color:var(--gray);line-height:1.65;margin-bottom:12px;}
+.sdesc code{background:var(--bg1);border:1px solid var(--bord2);padding:1px 5px;border-radius:3px;color:var(--amber);font-size:10px;}
+
+/* Inputs */
+input[type=text],input[type=password],textarea{
+  width:100%;background:var(--bg1);border:1px solid var(--bord2);border-radius:6px;
+  padding:10px 12px;color:var(--white);font-family:var(--font);font-size:12px;
+  outline:none;margin-bottom:8px;transition:border-color 0.2s;
+}
+input:focus,textarea:focus{border-color:var(--amber);}
+input::placeholder,textarea::placeholder{color:var(--gray);}
+textarea{min-height:68px;resize:vertical;font-size:10px;}
+
+/* Buttons */
+.btn{
+  width:100%;background:transparent;border:1px solid var(--bord2);color:var(--gray);
+  font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:1px;
+  padding:10px;border-radius:7px;cursor:pointer;transition:all 0.18s;
+}
+.btn:hover{border-color:var(--white);color:var(--white);}
+.btn.amber{border-color:var(--amber);color:var(--amber);}
+.btn.amber:hover{background:var(--amber);color:#000;}
+.btn.green{border-color:var(--green);color:var(--green);}
+.btn.green:hover{background:var(--green);color:#000;}
+.btn.solid{background:var(--amber);border-color:var(--amber);color:#000;}
+.btn.solid:hover{background:var(--amber2);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.btn .sp{display:inline-block;width:11px;height:11px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:5px;}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* Divider */
+.divider{text-align:center;font-size:9px;color:var(--gray);margin:14px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--bord2);}
+.divider::before{left:0;}.divider::after{right:0;}
+
+/* Alt card */
+.acard{background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:14px;}
+.atitle{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gray);margin-bottom:10px;}
+
+/* Guide */
+.guide{background:var(--bg1);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:8px;padding:14px 16px;}
+.gtitle{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--blue);margin-bottom:10px;}
+.glist{list-style:none;counter-reset:g;}
+.glist li{counter-increment:g;font-size:10px;color:var(--gray);line-height:1.65;padding-left:18px;position:relative;margin-bottom:3px;}
+.glist li::before{content:counter(g);position:absolute;left:0;color:var(--amber);font-weight:800;}
+.glist li a{color:var(--blue);text-decoration:none;}
+.glist li code{background:var(--bg2);border:1px solid var(--bord2);padding:1px 5px;border-radius:3px;color:var(--amber);font-size:9px;}
+.glist li strong{color:var(--white);}
+
+/* Msg boxes */
+.emsg{background:#1a0606;border:1px solid #ef444433;border-radius:6px;padding:9px 12px;font-size:10px;color:var(--red);margin-top:8px;display:none;}
+.smsg{background:#071a07;border:1px solid #22c55e33;border-radius:6px;padding:9px 12px;font-size:10px;color:var(--green);margin-top:8px;display:none;}
+
+/* ──────────── TERMINAL SCREEN ──────────── */
+#termScreen{
+  height:100vh;display:flex;flex-direction:column;overflow:hidden;
+}
+#termScreen > .tpanel{flex:1;overflow-y:auto;}
+
+/* Header */
+#hdr{
+  background:var(--bg1);border-bottom:1px solid var(--bord2);
+  padding:7px 14px;display:flex;align-items:center;gap:12px;
+  flex-shrink:0;flex-wrap:wrap;
+}
+.tlogo{
+  font-family:var(--font2);font-size:15px;font-weight:700;letter-spacing:2px;
+  color:var(--amber);white-space:nowrap;
+  text-shadow:0 0 20px #f59e0b44;
+}
+.spot-row{display:flex;gap:18px;flex:1;flex-wrap:wrap;align-items:center;}
+.sitem{display:flex;flex-direction:column;gap:1px;min-width:80px;}
+.slbl{font-size:7px;font-weight:800;letter-spacing:1.5px;color:var(--gray);}
+.sval{font-size:16px;font-weight:800;color:var(--white);font-variant-numeric:tabular-nums;transition:color 0.3s;}
+.sval.up{color:var(--green2);}
+.sval.dn{color:var(--red2);}
+.schg{font-size:9px;color:var(--gray);font-variant-numeric:tabular-nums;}
+.hdr-r{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.mbadge{font-size:8px;font-weight:800;letter-spacing:1.5px;padding:3px 8px;border-radius:4px;white-space:nowrap;}
+.mbadge.open{background:#22c55e18;border:1px solid #22c55e44;color:var(--green);}
+.mbadge.closed{background:#ef444418;border:1px solid #ef444444;color:var(--red);}
+.mbadge.pre{background:#f59e0b18;border:1px solid #f59e0b44;color:var(--amber);}
+#clk{font-size:12px;color:var(--gray);font-variant-numeric:tabular-nums;min-width:62px;}
+select{
+  background:var(--bg2);border:1px solid var(--bord2);color:var(--white);
+  font-family:var(--font);font-size:10px;padding:5px 8px;border-radius:5px;
+  outline:none;cursor:pointer;
+}
+.hbtn{
+  background:var(--bg2);border:1px solid var(--bord2);color:var(--gray);
+  font-family:var(--font);font-size:9px;font-weight:700;letter-spacing:0.5px;
+  padding:5px 9px;border-radius:5px;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.hbtn:hover{color:var(--white);border-color:var(--gray2);}
+.hbtn.on{color:var(--amber);border-color:var(--amber)44;background:#f59e0b0d;}
+.hbtn.red{color:var(--red);border-color:var(--red)44;}
+
+/* Analytics bar */
+#abar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:6px 14px;display:flex;gap:20px;flex-shrink:0;
+  overflow-x:auto;flex-wrap:nowrap;
+}
+.mitem{display:flex;flex-direction:column;gap:1px;white-space:nowrap;flex-shrink:0;}
+.mlbl{font-size:7px;font-weight:800;letter-spacing:1.5px;color:var(--gray);}
+.mval{font-size:13px;font-weight:800;color:var(--white);}
+.mval.bull{color:var(--green);}
+.mval.bear{color:var(--red);}
+.mval.neu{color:var(--amber);}
+
+/* Chain */
+#chainWrap{flex:1;overflow:auto;}
+#chain{width:100%;border-collapse:collapse;table-layout:fixed;}
+#chain thead{position:sticky;top:0;z-index:5;background:var(--bg2);}
+#chain th{
+  padding:6px 6px;font-size:7px;font-weight:800;letter-spacing:1px;
+  text-align:right;color:var(--gray);white-space:nowrap;
+  border-bottom:2px solid var(--bord2);
+}
+#chain th.ch{color:var(--green);}
+#chain th.ph{color:var(--red);}
+#chain th.sh{text-align:center;color:var(--amber);background:var(--bg3);}
+#chain td{
+  padding:4px 6px;font-size:10px;text-align:right;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+  font-variant-numeric:tabular-nums;transition:background 0.12s;
+}
+#chain tr:hover td{background:#0e1e30;}
+.kstrike{text-align:center;font-size:11px;font-weight:800;color:var(--amber);background:var(--bg3);border-left:1px solid var(--bord2);border-right:1px solid var(--bord2);}
+.kstrike.atm{background:#0d1f0d;color:var(--green2);border-left:1px solid var(--green)44;border-right:1px solid var(--green)44;}
+.celtp{color:var(--green);font-weight:700;}
+.peltp{color:var(--red);font-weight:700;}
+.bask{color:#3a5468;font-size:9px;}
+.ivv{color:var(--blue);font-size:9px;}
+.oiv{color:var(--white);}
+.chg-up{color:var(--green);font-size:9px;}
+.chg-dn{color:var(--red);font-size:9px;}
+
+/* OI bar */
+.oirow{display:flex;align-items:center;gap:3px;}
+.oirow.ce{justify-content:flex-end;}
+.oirow.pe{justify-content:flex-start;}
+.obar{height:3px;background:var(--green);border-radius:1px;min-width:1px;transition:width 0.4s;}
+.obar.pe{background:var(--red);}
+
+/* Flash */
+.fu{animation:fu 0.5s ease;}
+.fd{animation:fd 0.5s ease;}
+@keyframes fu{0%{background:#22c55e28;}100%{background:transparent;}}
+@keyframes fd{0%{background:#ef444428;}100%{background:transparent;}}
+
+/* Status bar */
+#sbar{
+  background:var(--bg1);border-top:1px solid var(--border);
+  padding:3px 14px;display:flex;justify-content:space-between;
+  align-items:center;flex-shrink:0;font-size:8px;color:var(--gray);
+  letter-spacing:0.5px;
+}
+.sdot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gray);margin-right:5px;vertical-align:middle;}
+.sdot.live{background:var(--green);box-shadow:0 0 4px var(--green);animation:pulse 2s infinite;}
+.sdot.err{background:var(--red);}
+
+/* ──────────── LOCAL FILE WARNING MODAL ──────────── */
+#localFileModal{
+  position:fixed;inset:0;background:#020509f5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;padding:20px;
+}
+.lf-box{
+  background:var(--bg2);border:1px solid var(--amber);border-radius:14px;
+  padding:24px 20px;max-width:420px;width:100%;
+}
+.lf-icon{font-size:32px;text-align:center;margin-bottom:10px;}
+.lf-title{font-family:var(--font2);font-size:18px;font-weight:700;color:var(--amber);text-align:center;letter-spacing:2px;margin-bottom:8px;}
+.lf-body{font-size:11px;color:var(--gray);line-height:1.7;margin-bottom:16px;text-align:center;}
+.lf-body strong{color:var(--white);}
+.lf-opt{
+  background:var(--bg3);border:1px solid var(--bord2);border-radius:8px;
+  padding:12px 14px;margin-bottom:10px;cursor:pointer;
+  transition:border-color 0.2s;
+}
+.lf-opt:active{border-color:var(--amber);}
+.lf-opt-num{
+  display:inline-block;background:var(--amber);color:#000;
+  font-size:9px;font-weight:800;border-radius:4px;padding:2px 6px;
+  margin-right:8px;letter-spacing:1px;
+}
+.lf-opt-title{font-size:12px;font-weight:700;color:var(--white);display:inline;}
+.lf-opt-desc{font-size:10px;color:var(--gray);margin-top:4px;line-height:1.5;}
+.lf-opt-desc a{color:var(--blue);}
+.lf-opt-tag{
+  display:inline-block;font-size:8px;font-weight:700;letter-spacing:1px;
+  padding:1px 6px;border-radius:4px;margin-left:6px;
+  background:#22c55e22;border:1px solid #22c55e44;color:var(--green);
+  vertical-align:middle;
+}
+.lf-dismiss{
+  text-align:center;margin-top:4px;font-size:10px;color:var(--gray);
+  text-decoration:underline;cursor:pointer;
+}
+
+/* ──────────── TAB BAR ──────────── */
+#tabBar{
+  background:var(--bg1);border-bottom:2px solid var(--bord2);
+  display:flex;flex-shrink:0;overflow-x:auto;
+  scrollbar-width:none;
+}
+#tabBar::-webkit-scrollbar{display:none;}
+.tbtab{
+  font-family:var(--font);font-size:9px;font-weight:800;letter-spacing:1.5px;
+  padding:9px 16px;color:var(--gray);background:transparent;border:none;
+  border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;
+  margin-bottom:-2px;transition:all 0.15s;
+}
+.tbtab:hover{color:var(--white);}
+.tbtab.act{color:var(--amber);border-bottom-color:var(--amber);}
+
+/* ──────────── PANEL CONTAINER ──────────── */
+.tpanel{display:none;flex:1;overflow-y:auto;padding:12px 14px;}
+.tpanel.show{display:block;}
+
+/* ──────────── SIGNAL PANEL ──────────── */
+.sig-hero{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--bord2);border-radius:10px;
+  padding:18px;margin-bottom:12px;position:relative;overflow:hidden;
+}
+.sig-hero::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--amber),var(--green),var(--amber));
+  background-size:200% 100%;animation:shimmer 3s linear infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.sig-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:10px 22px;border-radius:8px;
+  font-family:var(--font2);font-size:28px;font-weight:700;letter-spacing:2px;
+  margin-bottom:14px;cursor:default;transition:transform 0.2s;
+}
+.sig-badge:hover{transform:scale(1.02);}
+.sig-badge.buy-ce{background:#22c55e1a;border:2px solid #22c55e66;color:var(--green2);}
+.sig-badge.buy-pe{background:#ef44441a;border:2px solid #ef444466;color:var(--red2);}
+.sig-badge.wait{background:#f59e0b1a;border:2px solid #f59e0b44;color:var(--amber);}
+.sig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-bottom:12px;}
+.sig-kv{background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:9px 10px;}
+.sig-kv .sk{font-size:7px;font-weight:800;letter-spacing:1.5px;color:var(--gray);margin-bottom:3px;}
+.sig-kv .sv{font-size:15px;font-weight:800;color:var(--white);}
+.sig-kv .sv.g{color:var(--green);}
+.sig-kv .sv.r{color:var(--red);}
+.sig-kv .sv.a{color:var(--amber);}
+.conf-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.conf-bar-wrap{flex:1;height:6px;background:var(--bg1);border-radius:3px;overflow:hidden;}
+.conf-bar{height:100%;border-radius:3px;transition:width 0.6s ease;background:linear-gradient(90deg,var(--amber),var(--green));}
+.reason-box{background:var(--bg1);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:6px;padding:10px 12px;font-size:10px;color:var(--gray);line-height:1.7;}
+.reason-box strong{color:var(--white);}
+/* Signal history table */
+.sig-hist-hdr{font-size:7px;font-weight:800;letter-spacing:2px;color:var(--gray);margin:14px 0 8px;}
+.sht{width:100%;border-collapse:collapse;}
+.sht th{font-size:7px;font-weight:800;letter-spacing:1px;color:var(--gray);padding:5px 8px;text-align:left;background:var(--bg2);border-bottom:1px solid var(--bord2);}
+.sht td{font-size:10px;padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.sht tr:hover td{background:var(--bg2);}
+.pill{display:inline-block;font-size:8px;font-weight:800;padding:2px 7px;border-radius:10px;letter-spacing:1px;}
+.pill.ce{background:#22c55e1a;border:1px solid #22c55e44;color:var(--green);}
+.pill.pe{background:#ef44441a;border:1px solid #ef444444;color:var(--red);}
+.pill.hit{background:#22c55e1a;color:var(--green);}
+.pill.sl{background:#ef44441a;color:var(--red);}
+.pill.open{background:#f59e0b1a;color:var(--amber);}
+/* Factor bars */
+.factor-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.factor-lbl{font-size:9px;color:var(--gray);width:110px;flex-shrink:0;}
+.factor-track{flex:1;height:5px;background:var(--bg1);border-radius:3px;overflow:hidden;}
+.factor-fill{height:100%;border-radius:3px;transition:width 0.5s;}
+.factor-val{font-size:9px;width:50px;text-align:right;flex-shrink:0;}
+
+/* ──────────── INSTITUTIONAL PANEL ──────────── */
+.inst-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+@media(max-width:480px){.inst-grid{grid-template-columns:1fr;}}
+.inst-card{background:var(--bg2);border:1px solid var(--bord2);border-radius:8px;padding:14px;}
+.inst-title{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gray);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.inst-val{font-family:var(--font2);font-size:24px;font-weight:700;color:var(--white);line-height:1;}
+.inst-sub{font-size:9px;color:var(--gray);margin-top:3px;}
+.fii-input-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
+.fii-input-row label{font-size:8px;color:var(--gray);width:90px;flex-shrink:0;letter-spacing:1px;}
+.fii-input-row input[type=number]{margin-bottom:0;flex:1;padding:6px 10px;font-size:11px;}
+.smart-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);}
+.smart-row:last-child{border-bottom:none;}
+.smart-lbl{font-size:9px;color:var(--gray);}
+.smart-val{font-size:11px;font-weight:700;color:var(--white);}
+.oi-wall-badge{
+  display:inline-block;font-size:8px;font-weight:800;padding:2px 8px;border-radius:4px;
+  letter-spacing:1px;margin:2px;
+}
+.oi-wall-badge.ce{background:#22c55e1a;border:1px solid #22c55e44;color:var(--green);}
+.oi-wall-badge.pe{background:#ef44441a;border:1px solid #ef444444;color:var(--red);}
+.bias-meter{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:8px 0;}
+.bias-ce{background:linear-gradient(90deg,#22c55e88,#22c55e);transition:flex 0.6s ease;}
+.bias-pe{background:linear-gradient(90deg,#ef4444,#ef444488);transition:flex 0.6s ease;}
+.inflow-row{display:flex;gap:8px;margin-bottom:10px;}
+.inflow-cell{flex:1;background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:9px 10px;text-align:center;}
+.inflow-cell .ik{font-size:7px;font-weight:800;letter-spacing:1px;color:var(--gray);margin-bottom:4px;}
+.inflow-cell .iv2{font-size:14px;font-weight:800;}
+
+/* ──────────── COMPOUNDER PANEL ──────────── */
+.comp-hero{
+  background:var(--bg2);border:1px solid var(--bord2);border-radius:10px;
+  padding:16px;margin-bottom:12px;
+}
+.comp-title{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--gray);margin-bottom:12px;}
+.comp-big{font-family:var(--font2);font-size:36px;font-weight:700;color:var(--amber);line-height:1;}
+.comp-sub{font-size:10px;color:var(--gray);margin-top:4px;}
+.equity-bar{height:16px;background:var(--bg1);border-radius:8px;overflow:hidden;margin:12px 0;position:relative;}
+.equity-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--green));border-radius:8px;transition:width 0.8s ease;}
+.equity-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:800;color:var(--white);text-shadow:0 0 4px #000;}
+.comp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.comp-stat{background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:8px 10px;text-align:center;}
+.comp-stat .ck{font-size:7px;font-weight:800;letter-spacing:1px;color:var(--gray);margin-bottom:4px;}
+.comp-stat .cv{font-size:14px;font-weight:800;color:var(--white);}
+.trade-form{background:var(--bg2);border:1px solid var(--bord2);border-radius:8px;padding:14px;margin-bottom:12px;}
+.trade-form-title{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--amber);margin-bottom:10px;}
+.trade-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.trade-form-grid input{margin-bottom:0;}
+.trade-form select{width:100%;margin-bottom:8px;}
+.warn-box{
+  background:#1a0e00;border:1px solid var(--amber)44;border-radius:6px;
+  padding:10px 12px;font-size:9px;color:var(--amber);line-height:1.65;margin-bottom:12px;
+}
+.warn-box strong{color:var(--amber2);}
+
+/* mini equity chart */
+.mini-chart{display:flex;align-items:flex-end;gap:2px;height:50px;padding:4px 0;margin-top:8px;}
+.mini-bar{flex:1;min-width:4px;border-radius:2px 2px 0 0;background:var(--bord2);transition:height 0.4s,background 0.3s;}
+.mini-bar.w{background:#22c55e88;}
+.mini-bar.l{background:#ef444488;}
+.mini-bar.cur{background:var(--amber);}
+
+/* ──────────── DEPLOY PANEL ──────────── */
+.deploy-card{background:var(--bg2);border:1px solid var(--bord2);border-radius:10px;padding:16px;margin-bottom:10px;}
+.deploy-num{display:inline-block;background:var(--amber);color:#000;font-size:9px;font-weight:800;padding:2px 7px;border-radius:4px;margin-right:8px;letter-spacing:1px;}
+.deploy-title{font-size:13px;font-weight:700;color:var(--white);display:inline;}
+.deploy-tag{display:inline-block;font-size:8px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:8px;background:#22c55e1a;border:1px solid #22c55e44;color:var(--green);vertical-align:middle;}
+.deploy-body{font-size:10px;color:var(--gray);line-height:1.7;margin-top:8px;}
+.deploy-body a{color:var(--blue);}
+.deploy-body code{background:var(--bg1);border:1px solid var(--bord2);padding:1px 5px;border-radius:3px;color:var(--amber);font-size:9px;}
+.deploy-body strong{color:var(--white);}
+/* ──────────── CVD / INSTITUTIONAL VOLUME ──────────── */
+.cvd-hero{
+  background:linear-gradient(135deg,#020e18,#030f1a);
+  border:1px solid var(--bord2);border-radius:10px;
+  padding:16px;margin-bottom:12px;position:relative;overflow:hidden;
+}
+.cvd-hero::after{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 18px,#ffffff03 18px,#ffffff03 19px);
+  pointer-events:none;
+}
+.cvd-big{
+  font-family:var(--font2);font-size:38px;font-weight:700;line-height:1;
+  transition:color 0.4s;
+}
+.cvd-delta-bar{
+  height:20px;background:var(--bg1);border-radius:4px;
+  overflow:hidden;position:relative;margin:10px 0;
+  border:1px solid var(--bord2);
+}
+.cvd-fill-buy{height:100%;background:linear-gradient(90deg,#22c55e66,#22c55e);border-radius:4px 0 0 4px;transition:width 0.5s ease;float:left;}
+.cvd-fill-sell{height:100%;background:linear-gradient(90deg,#ef4444,#ef444466);border-radius:0 4px 4px 0;transition:width 0.5s ease;float:right;}
+.cvd-center-line{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--gray);opacity:0.4;}
+.cvd-bar-label{position:absolute;top:50%;transform:translateY(-50%);font-size:8px;font-weight:800;letter-spacing:1px;}
+.cvd-bar-label.left{left:6px;color:var(--green);}
+.cvd-bar-label.right{right:6px;color:var(--red);}
+
+/* Institutional absorption table */
+.inst-vol-tbl{width:100%;border-collapse:collapse;}
+.inst-vol-tbl th{font-size:7px;font-weight:800;letter-spacing:1.5px;color:var(--gray);padding:6px 8px;background:var(--bg2);border-bottom:1px solid var(--bord2);text-align:left;}
+.inst-vol-tbl td{font-size:10px;padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.inst-vol-tbl tr:hover td{background:#0a1820;}
+.inst-vol-tbl tr.inst-highlight td{background:#0a1f0a;}
+.inst-vol-tbl tr.inst-highlight-bear td{background:#1a0a0a;}
+.vol-dir{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:800;padding:3px 8px;border-radius:4px;letter-spacing:1px;}
+.vol-dir.long{background:#22c55e18;border:1px solid #22c55e44;color:var(--green);}
+.vol-dir.short{background:#ef444418;border:1px solid #ef444444;color:var(--red);}
+.vol-dir.neutral{background:#f59e0b18;border:1px solid #f59e0b44;color:var(--amber);}
+.absorb-badge{
+  display:inline-block;font-size:7px;font-weight:800;letter-spacing:1.5px;
+  padding:2px 6px;border-radius:3px;margin-left:4px;
+  background:#3b82f618;border:1px solid #3b82f644;color:#93c5fd;
+}
+
+/* CVD sparkline canvas */
+.cvd-spark{width:100%;height:50px;display:block;margin-top:8px;}
+
+/* Abar CVD chip */
+.cvd-chip{
+  display:flex;flex-direction:column;gap:1px;white-space:nowrap;flex-shrink:0;
+  border-left:2px solid var(--bord2);padding-left:14px;
+}
+.cvd-chip .mlbl{font-size:7px;font-weight:800;letter-spacing:1.5px;color:#3b82f6;}
+.cvd-chip .mval{font-size:13px;font-weight:800;}
+
+/* Pulse animation for new institutional detection */
+@keyframes instPulse{
+  0%{box-shadow:0 0 0 0 rgba(59,130,246,0.6);}
+  70%{box-shadow:0 0 0 10px rgba(59,130,246,0);}
+  100%{box-shadow:0 0 0 0 rgba(59,130,246,0);}
+}
+.inst-new{animation:instPulse 1.5s ease 3;}
+
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOCAL FILE DETECTION MODAL ══════════════════ -->
+<div id="localFileModal" style="display:none">
+  <div class="lf-box">
+    <div class="lf-icon">⚠️</div>
+    <div class="lf-title">ONE-TIME SETUP NEEDED</div>
+    <div class="lf-body">
+      This file is opened from <strong>local storage</strong>.<br>
+      Chrome blocks API calls from local files.<br><br>
+      <strong>You already have madnifty.pages.dev deployed!</strong><br>
+      Open <strong style="color:var(--amber)">https://madnifty.pages.dev</strong> in Chrome instead.
+    </div>
+
+    <div class="lf-opt" onclick="window.open('https://madnifty.pages.dev','_blank')">
+      <div>
+        <span class="lf-opt-num">1</span>
+        <span class="lf-opt-title">Open madnifty.pages.dev</span>
+        <span class="lf-opt-tag">YOUR SITE ★</span>
+      </div>
+      <div class="lf-opt-desc">
+        Opens your deployed app at <strong>madnifty.pages.dev</strong> — use that URL for trading.
+      </div>
+    </div>
+
+    <div class="lf-opt" onclick="showManualTokenHelp()">
+      <div>
+        <span class="lf-opt-num">2</span>
+        <span class="lf-opt-title">Generate Token via Python</span>
+      </div>
+      <div class="lf-opt-desc">
+        Run a 5-line Python script on any PC to get the <code>access_token</code>,
+        then paste it in the <strong>Direct Token</strong> field.
+        Tap here to see the script.
+      </div>
+    </div>
+
+    <div class="lf-dismiss" onclick="dismissLocalFileModal()">I understand the risks — continue anyway</div>
+  </div>
+</div>
+
+<!-- ══ PYTHON HELPER MODAL ══════════════════════════ -->
+<div id="pyModal" style="display:none;position:fixed;inset:0;background:#020509f5;z-index:10000;padding:20px;overflow-y:auto;">
+  <div class="lf-box" style="max-width:440px;margin:0 auto;">
+    <div class="lf-icon">🐍</div>
+    <div class="lf-title">PYTHON TOKEN SCRIPT</div>
+    <div class="lf-body">Run this on any PC (Windows/Mac/Linux) to get your access_token:</div>
+    <pre id="pyScript" style="background:var(--bg);border:1px solid var(--bord2);border-radius:6px;padding:12px;font-size:10px;color:var(--green2);line-height:1.6;overflow-x:auto;white-space:pre;margin-bottom:12px;">pip install kiteconnect
+
+from kiteconnect import KiteConnect
+API_KEY    = "YOUR_API_KEY"
+API_SECRET = "YOUR_API_SECRET"
+kite = KiteConnect(api_key=API_KEY)
+print(kite.login_url())
+# Open that URL, login, copy request_token
+
+request_token = "PASTE_REQUEST_TOKEN"
+data = kite.generate_session(request_token, api_secret=API_SECRET)
+print("ACCESS TOKEN:", data["access_token"])</pre>
+    <button class="btn amber" onclick="copyPyScript()" style="width:100%;margin-bottom:10px;">📋 Copy Script</button>
+    <div style="text-align:center;font-size:10px;color:var(--gray);">Then paste the access_token in the <strong style="color:var(--white)">Manual Token</strong> field</div>
+    <div class="lf-dismiss" style="margin-top:12px;" onclick="q('#pyModal').style.display='none'">← Back</div>
+  </div>
+</div>
+
+<!-- ══ LOADING OVERLAY ══════════════════════════════════ -->
+<div id="loadOverlay" style="display:none">
+  <div class="load-sym">◈</div>
+  <div class="load-txt" id="loadTxt">INITIALIZING</div>
+  <div class="load-bar"><div class="load-fill" id="loadFill"></div></div>
+</div>
+
+<!-- ══ LOGIN SCREEN ═════════════════════════════════════ -->
+<div id="loginScreen">
+<div class="login-wrap">
+
+  <div class="login-logo">
+    <span class="l-sym">◈</span>
+    <div class="l-name">MADNIFTY TERMINAL</div>
+    <div class="l-sub">v6 — INSTITUTIONAL · CVD · SIGNALS · COMPOUNDER</div>
+    <span class="l-tag" id="hostTag">✓ LIVE KITE CONNECT</span>
+  </div>
+
+  <!-- banners -->
+  <div id="autoSuccessBanner" style="display:none;background:#071a07;border:1px solid #22c55e44;border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:11px;color:var(--green);">
+    ✅ <strong>Token received! Exchanging...</strong>
+  </div>
+  <div id="tokenFoundBanner" style="display:none;background:#1a0f00;border:2px solid var(--amber);border-radius:10px;padding:14px 16px;margin-bottom:14px;">
+    <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--amber);margin-bottom:6px;">🎯 REQUEST_TOKEN FOUND IN URL!</div>
+    <div style="font-size:10px;color:var(--gray);line-height:1.7;margin-bottom:10px;">Save your API Key + Secret in Step 01 below → then tap Exchange.</div>
+    <button class="btn amber" onclick="retryTokenFromUrl()">⚡ Exchange Token Now</button>
+  </div>
+
+  <!-- ⚡ PRIMARY: Direct Token Paste -->
+  <div class="scard glowing">
+    <div class="snum">⚡ STEP 01 — PASTE ACCESS TOKEN (PRIMARY METHOD)</div>
+    <div class="stitle" style="color:var(--amber);">Paste Your Access Token Here</div>
+    <div class="sdesc">
+      This is the <strong style="color:var(--white)">fastest and most reliable method</strong>.<br>
+      Get your token using the helper below → paste → tap Launch.
+    </div>
+    <input type="text" id="manTok" placeholder="Paste access_token here..." autocomplete="off" style="font-size:13px;padding:12px;">
+    <button class="btn solid" onclick="connectManual()" style="font-size:13px;padding:13px;letter-spacing:2px;">
+      ▶ LAUNCH TERMINAL
+    </button>
+    <div class="emsg" id="em"></div>
+  </div>
+
+  <!-- Token Helper Box -->
+  <div style="background:var(--bg2);border:1px solid var(--bord2);border-radius:10px;padding:16px;margin-bottom:10px;">
+    <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:var(--blue);margin-bottom:12px;">🔑 HOW TO GET YOUR ACCESS TOKEN</div>
+
+    <!-- Method A -->
+    <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;">
+      <div style="font-size:9px;font-weight:800;color:var(--amber);margin-bottom:8px;">METHOD A — Kite Web (works on Android, 30 sec)</div>
+      <div style="font-size:10px;color:var(--gray);line-height:1.8;">
+        <strong style="color:var(--white)">1.</strong> Tap button below → Zerodha login opens<br>
+        <strong style="color:var(--white)">2.</strong> Login → you land on a page with URL containing <code>request_token=XXXX</code><br>
+        <strong style="color:var(--white)">3.</strong> Copy that <strong style="color:var(--amber)">full URL</strong> from address bar<br>
+        <strong style="color:var(--white)">4.</strong> Paste below → tap Extract Token
+      </div>
+      <button class="btn solid" onclick="openLogin()" style="margin:10px 0 8px;font-size:11px;">🔗 Open Zerodha Login</button>
+      <div style="display:flex;gap:6px;">
+        <textarea id="reqTokenUrl" placeholder="Paste full redirect URL here: https://taabu123.github.io/Madnifty/?action=login&status=success&request_token=AbCdXX..." style="min-height:56px;font-size:10px;flex:1;margin-bottom:0;"></textarea>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;">
+        <button class="btn amber" onclick="pasteIntoReqUrl()" style="flex:1;font-size:10px;">📋 Paste from Clipboard</button>
+        <button class="btn green" onclick="extractAndExchange()" style="flex:1;font-size:10px;">⚡ Get Token</button>
+      </div>
+      <div id="proxyStatus" style="display:none;font-size:9px;color:var(--amber);margin-top:5px;padding:5px;background:var(--bg2);border-radius:4px;"></div>
+      <div class="emsg" id="e3" style="margin-top:6px;"></div>
+      <div class="smsg" id="s3" style="margin-top:6px;"></div>
+    </div>
+
+    <!-- Method B -->
+    <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:12px;">
+      <div style="font-size:9px;font-weight:800;color:var(--blue);margin-bottom:6px;">METHOD B — Python Script (if you have a PC/laptop)</div>
+      <div style="font-size:10px;color:var(--gray);line-height:1.6;margin-bottom:8px;">Run once on any computer → prints access_token → paste above.</div>
+      <button class="btn" onclick="showManualTokenHelp()" style="font-size:9px;padding:6px 14px;width:auto;">🐍 Show Python Script</button>
+    </div>
+  </div>
+
+  <!-- Credentials (secondary) -->
+  <div class="scard" id="card1">
+    <div class="snum">STEP 02 — API CREDENTIALS (save once, remembered forever)</div>
+    <div class="stitle">Enter Your Kite Connect Keys</div>
+    <div class="sdesc">
+      Needed for token exchange. Save once — browser remembers.<br>
+      Get from <a href="https://developers.kite.trade" target="_blank" style="color:var(--blue)">developers.kite.trade</a> → your app.<br>
+      <strong style="color:var(--amber)">Redirect URL → set to:</strong>
+      <code id="redirUrlCode" onclick="copyCode(this)" style="cursor:pointer;word-break:break-all;font-size:10px;">https://taabu123.github.io/Madnifty</code>
+      <span style="font-size:9px;color:var(--gray)"> ← tap to copy</span>
+    </div>
+    <input type="text" id="apiKey" placeholder="API Key (e.g. abcde12345)" autocomplete="off">
+    <input type="password" id="apiSecret" placeholder="API Secret" autocomplete="off">
+    <div class="row2">
+      <button class="btn amber" onclick="saveCredentials()">💾 Save</button>
+      <button class="btn" onclick="clearAll()" style="color:var(--red);border-color:var(--red)33">✕ Clear</button>
+    </div>
+    <div class="emsg" id="e1"></div>
+    <div class="smsg" id="s1"></div>
+  </div>
+
+  <!-- hidden elements needed by JS -->
+  <div style="display:none;">
+    <textarea id="redir"></textarea>
+    <div id="connBtn"></div>
+    <div id="tokenTimer"><span id="timerVal"></span></div>
+    <div id="card2"></div><div id="card3"></div>
+    <div id="localServerBanner"><span id="detectedOrigin"></span><code id="localRedirDisplay"></code></div>
+    <div id="step2Hint"></div>
+  </div>
+
+  <div class="guide">
+    <div class="gtitle">⚙ FIRST TIME SETUP — KITE CONNECT</div>
+    <ol class="glist">
+      <li>Go to <a href="https://developers.kite.trade" target="_blank">developers.kite.trade</a> → sign in → Create new app → type Connect.</li>
+      <li>Set <strong>Redirect URL</strong> to: <code>https://taabu123.github.io/Madnifty</code></li>
+      <li>Copy API Key + Secret → enter in Step 02 above → Save.</li>
+      <li>Subscribe Kite Connect: <a href="https://zerodha.com/connect/developer" target="_blank">₹2000/month</a>.</li>
+      <li><strong>Daily routine:</strong> Tap "Open Zerodha Login" → login → copy redirect URL → paste → tap "Get Token" → paste token → Launch. 30 seconds total.</li>
+    </ol>
+  </div>
+
+</div><!-- /login-wrap -->
+</div><!-- /loginScreen -->
+
+<!-- ══ TERMINAL SCREEN ══════════════════════════════════ -->
+<div id="termScreen" style="display:none">
+
+  <!-- Header -->
+  <div id="hdr">
+    <div class="tlogo">◈ MADNIFTY</div>
+    <div class="spot-row">
+      <div class="sitem">
+        <div class="slbl">NIFTY 50</div>
+        <div class="sval" id="nP">—</div>
+        <div class="schg" id="nC">—</div>
+      </div>
+      <div class="sitem">
+        <div class="slbl">INDIA VIX</div>
+        <div class="sval" id="vP">—</div>
+        <div class="schg" id="vC">—</div>
+      </div>
+      <div class="sitem" id="bnkItem" style="display:none">
+        <div class="slbl">BANK NIFTY</div>
+        <div class="sval" id="bP">—</div>
+        <div class="schg" id="bC">—</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <span class="mbadge" id="mbadge">—</span>
+      <span id="clk">—</span>
+      <select id="symSel" onchange="onSymChange()">
+        <option value="NIFTY">NIFTY</option>
+        <option value="BANKNIFTY">BANKNIFTY</option>
+        <option value="FINNIFTY">FINNIFTY</option>
+        <option value="MIDCPNIFTY">MIDCPNIFTY</option>
+      </select>
+      <select id="expSel" onchange="onExpChange()"></select>
+      <button class="hbtn on" id="autoBtn" onclick="toggleAuto()">AUTO ●</button>
+      <button class="hbtn" onclick="doRefresh()">⟳</button>
+      <button class="hbtn red" onclick="doLogout()">⏏</button>
+    </div>
+  </div>
+
+  <!-- Diagnostic / Status Strip -->
+  <div id="tokenStrip" style="display:flex;border-bottom:1px solid #1e3448;padding:6px 14px;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;flex-wrap:wrap;background:#060d14;">
+    <span id="tokenStripText" style="font-size:9px;color:#4a6478;letter-spacing:0.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Checking credentials...</span>
+    <button onclick="showDiag()" style="background:#f59e0b;border:none;color:#000;font-size:8px;font-weight:800;padding:4px 10px;border-radius:4px;cursor:pointer;letter-spacing:1px;white-space:nowrap;">🔍 DIAGNOSE</button>
+    <button onclick="doLogout()" style="background:transparent;border:1px solid #ef444444;color:#ef4444;font-size:8px;font-weight:800;padding:4px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;white-space:nowrap;">⏏</button>
+    <button onclick="doRefresh()" style="background:transparent;border:1px solid #22c55e44;color:#22c55e;font-size:8px;font-weight:800;padding:4px 8px;border-radius:4px;cursor:pointer;letter-spacing:1px;white-space:nowrap;">↻</button>
+  </div>
+
+  <!-- Full Diagnostic Modal -->
+  <div id="diagModal" style="display:none;position:fixed;inset:0;background:#020509f8;z-index:9999;overflow-y:auto;padding:16px;">
+    <div style="max-width:460px;margin:0 auto;background:#0a1520;border:1px solid #1e3448;border-radius:12px;padding:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#f59e0b;">🔍 LIVE DIAGNOSTIC</div>
+        <button onclick="q('#diagModal').style.display='none'" style="background:none;border:none;color:#4a6478;font-size:18px;cursor:pointer;">✕</button>
+      </div>
+
+      <!-- Status grid -->
+      <div id="diagGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;"></div>
+
+      <!-- API Test -->
+      <div style="background:#060d14;border:1px solid #152030;border-radius:8px;padding:12px;margin-bottom:12px;">
+        <div style="font-size:8px;font-weight:800;letter-spacing:2px;color:#4a6478;margin-bottom:8px;">LIVE API TEST</div>
+        <button onclick="testAPI()" style="background:#38bdf8;border:none;color:#000;font-size:10px;font-weight:800;padding:8px 16px;border-radius:6px;cursor:pointer;width:100%;letter-spacing:1px;">▶ TEST KITE API NOW</button>
+        <div id="diagApiResult" style="margin-top:8px;font-size:10px;color:#4a6478;line-height:1.6;"></div>
+      </div>
+
+      <!-- Manual token entry -->
+      <div style="background:#060d14;border:1px solid #152030;border-radius:8px;padding:12px;margin-bottom:12px;">
+        <div style="font-size:8px;font-weight:800;letter-spacing:2px;color:#4a6478;margin-bottom:8px;">PASTE ACCESS TOKEN MANUALLY</div>
+        <input type="text" id="diagToken" placeholder="Paste access_token here..." style="margin-bottom:8px;font-size:11px;">
+        <button onclick="applyDiagToken()" style="background:#22c55e;border:none;color:#000;font-size:10px;font-weight:800;padding:8px 16px;border-radius:6px;cursor:pointer;width:100%;letter-spacing:1px;">✓ APPLY TOKEN & RELOAD DATA</button>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="clearInstrCache()" style="background:transparent;border:1px solid #f59e0b44;color:#f59e0b;font-size:9px;font-weight:800;padding:8px;border-radius:6px;cursor:pointer;">🗑 CLEAR INSTRUMENT CACHE</button>
+        <button onclick="doLogout()" style="background:transparent;border:1px solid #ef444444;color:#ef4444;font-size:9px;font-weight:800;padding:8px;border-radius:6px;cursor:pointer;">⏏ FULL LOGOUT & RELOGIN</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics bar -->
+  <div id="abar">
+    <div class="mitem"><div class="mlbl">PUT/CALL RATIO</div><div class="mval" id="mPCR">—</div></div>
+    <div class="mitem"><div class="mlbl">MAX PAIN</div><div class="mval" id="mMP">—</div></div>
+    <div class="mitem"><div class="mlbl">TOTAL CE OI</div><div class="mval" id="mCE">—</div></div>
+    <div class="mitem"><div class="mlbl">TOTAL PE OI</div><div class="mval" id="mPE">—</div></div>
+    <div class="mitem"><div class="mlbl">ATM STRIKE</div><div class="mval neu" id="mATM">—</div></div>
+    <div class="mitem"><div class="mlbl">ATM CE IV</div><div class="mval" id="mCI">—</div></div>
+    <div class="mitem"><div class="mlbl">ATM PE IV</div><div class="mval" id="mPI">—</div></div>
+    <div class="mitem"><div class="mlbl">IV SKEW</div><div class="mval" id="mSK">—</div></div>
+    <div class="mitem"><div class="mlbl">SENTIMENT</div><div class="mval" id="mST">—</div></div>
+    <div class="mitem"><div class="mlbl">OI SIGNAL</div><div class="mval" id="mOIS">—</div></div>
+    <div class="cvd-chip"><div class="mlbl">CVD</div><div class="mval" id="mCVD">—</div></div>
+    <div class="cvd-chip"><div class="mlbl">INST ABSORPTION</div><div class="mval" id="mABS" style="color:#93c5fd">—</div></div>
+    <div class="cvd-chip"><div class="mlbl">INST DIRECTION</div><div class="mval" id="mIDIR">—</div></div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div id="tabBar">
+    <button class="tbtab act" onclick="switchTab('chain')">⊞ CHAIN</button>
+    <button class="tbtab" onclick="switchTab('signals')">◈ SIGNALS</button>
+    <button class="tbtab" onclick="switchTab('cvd')">📊 CVD / INST VOL</button>
+    <button class="tbtab" onclick="switchTab('institutional')">🏛 SMART MONEY</button>
+    <button class="tbtab" onclick="switchTab('compounder')">💰 COMPOUNDER</button>
+    <button class="tbtab" onclick="switchTab('deploy')">📱 DEPLOY</button>
+  </div>
+
+  <!-- PANEL: Chain -->
+  <div id="panel-chain" class="tpanel show" style="padding:0;display:flex;flex-direction:column;">
+    <div id="chainWrap" style="flex:1;overflow:auto;">
+      <table id="chain">
+        <colgroup>
+          <col style="width:8%"><col style="width:6%"><col style="width:5%">
+          <col style="width:6%"><col style="width:7%">
+          <col style="width:9%">
+          <col style="width:7%"><col style="width:6%"><col style="width:5%">
+          <col style="width:6%"><col style="width:8%">
+          <col style="width:6%"><col style="width:5%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="ch">CE OI</th>
+            <th class="ch">Δ OI</th>
+            <th class="ch">IV%</th>
+            <th class="ch">BID</th>
+            <th class="ch">CE LTP</th>
+            <th class="sh">⟵ STRIKE ⟶</th>
+            <th class="ph">PE LTP</th>
+            <th class="ph">BID</th>
+            <th class="ph">IV%</th>
+            <th class="ph">Δ OI</th>
+            <th class="ph">PE OI</th>
+            <th style="text-align:center;color:var(--gray)">SPREAD</th>
+            <th style="text-align:center;color:var(--gray)">PCR</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="13" style="text-align:center;padding:50px;color:var(--gray)">
+            Initializing — waiting for data...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Status bar inside chain panel -->
+    <div id="sbar">
+      <div><span class="sdot" id="sdot"></span><span id="lupd">Never</span></div>
+      <div id="dstat" style="color:var(--amber)">CONNECTING</div>
+      <div><span id="scnt">—</span> strikes · <span id="slotSz">—</span> lot</div>
+    </div>
+  </div>
+
+  <!-- PANEL: Signals -->
+  <div id="panel-signals" class="tpanel">
+    <!-- Main Signal Hero -->
+    <div class="sig-hero" id="sigHero">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div id="sigBadge" class="sig-badge wait">⏳ WAIT — ANALYSING...</div>
+          <div id="sigStrike" style="font-size:11px;color:var(--gray);margin-bottom:10px;"></div>
+          <div class="conf-row">
+            <span style="font-size:9px;color:var(--gray);width:80px;flex-shrink:0;">CONFIDENCE</span>
+            <div class="conf-bar-wrap"><div class="conf-bar" id="confBar" style="width:0%"></div></div>
+            <span id="confPct" style="font-size:12px;font-weight:800;color:var(--amber);width:36px;text-align:right;">—</span>
+          </div>
+        </div>
+        <div id="sigMeta" style="text-align:right;font-size:9px;color:var(--gray);line-height:1.8;"></div>
+      </div>
+      <div class="sig-grid" id="sigGrid"></div>
+      <div class="reason-box" id="sigReason">Connect to Kite and click Refresh to generate live signals.</div>
+    </div>
+
+    <!-- Factor Analysis -->
+    <div style="background:var(--bg2);border:1px solid var(--bord2);border-radius:8px;padding:14px;margin-bottom:12px;">
+      <div class="sig-hist-hdr">SIGNAL FACTOR BREAKDOWN</div>
+      <div id="factorRows"></div>
+    </div>
+
+    <!-- Signal Log -->
+    <div>
+      <div class="sig-hist-hdr">SIGNAL LOG (SESSION)</div>
+      <table class="sht">
+        <thead><tr>
+          <th>TIME</th><th>TYPE</th><th>STRIKE</th><th>ENTRY</th><th>TARGET</th><th>SL</th><th>STATUS</th>
+        </tr></thead>
+        <tbody id="sigLog"><tr><td colspan="7" style="color:var(--gray);padding:16px;text-align:center;">No signals yet this session</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL: CVD & Institutional Volume -->
+  <div id="panel-cvd" class="tpanel">
+
+    <!-- CVD Hero -->
+    <div class="cvd-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div>
+          <div style="font-size:8px;font-weight:800;letter-spacing:2px;color:#3b82f6;margin-bottom:6px;">CUMULATIVE VOLUME DELTA (CVD)</div>
+          <div class="cvd-big" id="cvdValue">—</div>
+          <div style="font-size:10px;color:var(--gray);margin-top:4px;" id="cvdSubtitle">Waiting for data...</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:8px;color:var(--gray);letter-spacing:1px;margin-bottom:4px;">SESSION</div>
+          <div style="font-size:11px;color:var(--white);font-weight:700;" id="cvdSession">BUY: — / SELL: —</div>
+          <div style="font-size:8px;color:var(--gray);margin-top:4px;">TOTAL CONTRACTS</div>
+          <div style="font-size:14px;font-weight:800;color:var(--white);" id="cvdTotal">—</div>
+        </div>
+      </div>
+
+      <!-- Delta bar -->
+      <div class="cvd-delta-bar" id="cvdBar">
+        <div class="cvd-fill-buy" id="cvdBuyFill" style="width:50%"></div>
+        <div class="cvd-fill-sell" id="cvdSellFill" style="width:50%"></div>
+        <div class="cvd-center-line"></div>
+        <span class="cvd-bar-label left">BUYERS</span>
+        <span class="cvd-bar-label right">SELLERS</span>
+      </div>
+
+      <!-- CVD sparkline -->
+      <canvas class="cvd-spark" id="cvdCanvas" height="50"></canvas>
+    </div>
+
+    <!-- Institutional Absorption Meter -->
+    <div style="background:var(--bg2);border:1px solid var(--bord2);border-radius:10px;padding:14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:8px;font-weight:800;letter-spacing:2px;color:#93c5fd;">🏛 INSTITUTIONAL ABSORPTION DETECTOR</div>
+        <div style="font-size:8px;color:var(--gray);">Large OI + Small ΔPrice = Institutional Entry</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+        <div style="background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:7px;font-weight:800;letter-spacing:1px;color:#93c5fd;margin-bottom:4px;">INST LONG VOL</div>
+          <div style="font-size:18px;font-weight:800;color:var(--green);" id="instLongVol">—</div>
+          <div style="font-size:9px;color:var(--gray);">contracts</div>
+        </div>
+        <div style="background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:7px;font-weight:800;letter-spacing:1px;color:#93c5fd;margin-bottom:4px;">INST SHORT VOL</div>
+          <div style="font-size:18px;font-weight:800;color:var(--red);" id="instShortVol">—</div>
+          <div style="font-size:9px;color:var(--gray);">contracts</div>
+        </div>
+        <div style="background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;">
+          <div style="font-size:7px;font-weight:800;letter-spacing:1px;color:#93c5fd;margin-bottom:4px;">NET DIRECTION</div>
+          <div style="font-size:14px;font-weight:800;" id="instNetDir">—</div>
+          <div style="font-size:9px;color:var(--gray);" id="instNetVal">—</div>
+        </div>
+      </div>
+
+      <!-- Absorption signals -->
+      <div style="font-size:7px;font-weight:800;letter-spacing:2px;color:var(--gray);margin-bottom:8px;">DETECTED ABSORPTION STRIKES</div>
+      <div id="absorptionStrikes" style="font-size:10px;color:var(--gray);">Refreshing chain data will detect institutional activity...</div>
+    </div>
+
+    <!-- Depth & Bid-Ask Volume Flow -->
+    <div style="background:var(--bg2);border:1px solid var(--bord2);border-radius:10px;padding:14px;margin-bottom:12px;">
+      <div style="font-size:8px;font-weight:800;letter-spacing:2px;color:#93c5fd;margin-bottom:12px;">📈 REAL-TIME OI VOLUME TABLE — INSTITUTIONAL STRIKES</div>
+      <div style="overflow-x:auto;">
+        <table class="inst-vol-tbl">
+          <thead>
+            <tr>
+              <th>STRIKE</th>
+              <th>TYPE</th>
+              <th>OI</th>
+              <th>OI CHANGE</th>
+              <th>VOLUME</th>
+              <th>ΔPRICE</th>
+              <th>INST SIGNAL</th>
+              <th>DIRECTION</th>
+              <th>EST. VALUE</th>
+            </tr>
+          </thead>
+          <tbody id="instVolTable">
+            <tr><td colspan="9" style="color:var(--gray);padding:20px;text-align:center;">Refresh chain to detect institutional volume</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- What does this mean box -->
+    <div style="background:var(--bg1);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:6px;padding:12px 14px;font-size:9px;color:var(--gray);line-height:1.75;">
+      <div style="font-size:8px;font-weight:800;letter-spacing:2px;color:#93c5fd;margin-bottom:8px;">HOW TO READ THIS</div>
+      <strong style="color:var(--white)">CVD (Cumulative Volume Delta)</strong> = Total buy-side volume minus sell-side volume. Rising CVD with rising price = strong bullish. Rising CVD with falling price = institutional accumulation (hidden buying).<br><br>
+      <strong style="color:var(--white)">Institutional Absorption</strong> = When OI increases significantly (+20% vs avg) BUT price barely moves (&lt;0.3%) — institutions are absorbing retail orders. This is stealth positioning before a big move.<br><br>
+      <strong style="color:var(--white)">Long Absorption</strong> = Large PE OI build-up + price stable = institutions buying puts as hedge = BEARISH signal.<br>
+      <strong style="color:var(--white)">Short Absorption</strong> = Large CE OI build-up + price stable = institutions writing calls = they expect price below that level.
+    </div>
+
+  </div>
+
+  <!-- PANEL: Institutional / Smart Money -->
+  <div id="panel-institutional" class="tpanel">
+
+    <!-- Overall Institutional Bias -->
+    <div class="inst-card" style="margin-bottom:12px;">
+      <div class="inst-title">🏛 INSTITUTIONAL BIAS METER</div>
+      <div class="bias-meter">
+        <div class="bias-ce" id="biasCE" style="flex:1"></div>
+        <div class="bias-pe" id="biasPE" style="flex:1"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--gray);">
+        <span>🐂 BULL (CE Unwinding / PUT BUILD)</span>
+        <span>BEAR (CALL BUILD / PE Unwinding) 🐻</span>
+      </div>
+      <div id="instBiasText" style="margin-top:10px;font-size:11px;font-weight:800;color:var(--amber);text-align:center;padding:8px;background:var(--bg1);border-radius:6px;border:1px solid var(--bord2);">Connect & refresh to see institutional positioning</div>
+    </div>
+
+    <!-- FII/DII Manual Input -->
+    <div class="inst-card" style="margin-bottom:12px;">
+      <div class="inst-title">📊 FII / DII CASH MARKET (Manual · NSE Data)</div>
+      <div style="font-size:9px;color:var(--gray);margin-bottom:10px;line-height:1.6;">
+        Enter today's data from
+        <a href="https://www.nseindia.com/market-data/live-market-statistics" target="_blank" style="color:var(--blue)">NSE Market Statistics</a>
+        · Updated at market close.
+      </div>
+      <div class="fii-input-row">
+        <label>FII BUY (Cr)</label>
+        <input type="number" id="fiiBuy" placeholder="e.g. 8450" oninput="calcFiiDii()">
+      </div>
+      <div class="fii-input-row">
+        <label>FII SELL (Cr)</label>
+        <input type="number" id="fiiSell" placeholder="e.g. 7820" oninput="calcFiiDii()">
+      </div>
+      <div class="fii-input-row">
+        <label>DII BUY (Cr)</label>
+        <input type="number" id="diiBuy" placeholder="e.g. 5200" oninput="calcFiiDii()">
+      </div>
+      <div class="fii-input-row">
+        <label>DII SELL (Cr)</label>
+        <input type="number" id="diiSell" placeholder="e.g. 4600" oninput="calcFiiDii()">
+      </div>
+      <div class="inflow-row" id="fiiResult" style="margin-top:10px;">
+        <div class="inflow-cell"><div class="ik">FII NET</div><div class="iv2" id="fiiNet" style="color:var(--gray)">—</div></div>
+        <div class="inflow-cell"><div class="ik">DII NET</div><div class="iv2" id="diiNet" style="color:var(--gray)">—</div></div>
+        <div class="inflow-cell"><div class="ik">COMBINED</div><div class="iv2" id="combinedNet" style="color:var(--gray)">—</div></div>
+      </div>
+      <div id="fiiSignal" style="display:none;margin-top:8px;background:var(--bg1);border-radius:6px;padding:10px;font-size:11px;font-weight:800;text-align:center;border:1px solid var(--bord2);"></div>
+    </div>
+
+    <!-- OI-Based Institutional Signals -->
+    <div class="inst-grid">
+      <div class="inst-card">
+        <div class="inst-title">🧱 OI WALLS (Resistance/Support)</div>
+        <div id="oiWalls"><span style="font-size:10px;color:var(--gray);">Refresh chain data to detect walls</span></div>
+      </div>
+      <div class="inst-card">
+        <div class="inst-title">🔍 SMART MONEY SIGNALS</div>
+        <div id="smartMoneySignals">
+          <div class="smart-row"><span class="smart-lbl">Inst. OI Signal</span><span class="smart-val" id="smOI">—</span></div>
+          <div class="smart-row"><span class="smart-lbl">OI Velocity</span><span class="smart-val" id="smVel">—</span></div>
+          <div class="smart-row"><span class="smart-lbl">IV Skew Signal</span><span class="smart-val" id="smSkew">—</span></div>
+          <div class="smart-row"><span class="smart-lbl">Max Pain vs Spot</span><span class="smart-val" id="smMP">—</span></div>
+          <div class="smart-row"><span class="smart-lbl">VIX Signal</span><span class="smart-val" id="smVIX">—</span></div>
+          <div class="smart-row"><span class="smart-lbl">Overall Verdict</span><span class="smart-val" id="smVerdict" style="color:var(--amber)">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg1);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:6px;padding:10px 12px;font-size:9px;color:var(--gray);line-height:1.7;margin-top:4px;">
+      ℹ️ <strong style="color:var(--white)">How Smart Money Detection Works:</strong>
+      OI walls = strikes with >2× average OI (institutional hedges/positions).
+      OI velocity = sudden large OI additions = smart money entering.
+      IV skew = puts more expensive than calls = institutional fear/buying protection.
+      Max pain < spot = market likely to revert down; max pain > spot = likely to rise.
+    </div>
+  </div>
+
+  <!-- PANEL: Compounder -->
+  <div id="panel-compounder" class="tpanel">
+
+    <div class="warn-box">
+      ⚠️ <strong>RISK DISCLOSURE:</strong> Going from ₹10,000 → ₹1,00,000 in 30 days requires ~7.98% return per trade (assuming 1 trade/day). This is <strong>extremely high-risk</strong>. Options can expire worthless and you can lose your entire capital. With ₹10k, 1 lot of NIFTY ATM options costs ~₹11,000–15,000 so you may need to trade 1 lot of deep OTM (cheaply priced) options which carry even higher risk of complete loss. <strong>Never invest money you cannot afford to lose.</strong>
+    </div>
+
+    <!-- Goal Progress -->
+    <div class="comp-hero">
+      <div class="comp-title">🎯 COMPOUNDING GOAL TRACKER</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
+        <div>
+          <div style="font-size:9px;color:var(--gray);margin-bottom:2px;">CURRENT CAPITAL</div>
+          <div class="comp-big" id="curCapital">₹10,000</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px;color:var(--gray);margin-bottom:2px;">TARGET</div>
+          <div style="font-family:var(--font2);font-size:22px;font-weight:700;color:var(--green);">₹1,00,000</div>
+        </div>
+      </div>
+      <div class="equity-bar">
+        <div class="equity-fill" id="goalFill" style="width:1%"></div>
+        <div class="equity-pct" id="goalPct">1%</div>
+      </div>
+      <div class="comp-stats">
+        <div class="comp-stat"><div class="ck">DAYS LEFT</div><div class="cv" id="daysLeft" style="color:var(--amber);">30</div></div>
+        <div class="comp-stat"><div class="ck">TRADES DONE</div><div class="cv" id="tradesDone">0</div></div>
+        <div class="comp-stat"><div class="ck">NEEDED/TRADE</div><div class="cv" id="neededPct" style="color:var(--red);">7.98%</div></div>
+        <div class="comp-stat"><div class="ck">WIN RATE</div><div class="cv" id="winRate">—</div></div>
+        <div class="comp-stat"><div class="ck">TOTAL P&L</div><div class="cv" id="totalPnl">₹0</div></div>
+        <div class="comp-stat"><div class="ck">TO TARGET</div><div class="cv" id="toTarget" style="color:var(--red);">₹90,000</div></div>
+      </div>
+
+      <!-- Mini Equity Chart -->
+      <div style="font-size:7px;font-weight:800;letter-spacing:1.5px;color:var(--gray);margin-bottom:4px;">EQUITY CURVE</div>
+      <div class="mini-chart" id="miniChart">
+        <div class="mini-bar cur" style="height:30%;"></div>
+      </div>
+    </div>
+
+    <!-- Log a Trade -->
+    <div class="trade-form">
+      <div class="trade-form-title">+ LOG A TRADE</div>
+      <div class="trade-form-grid">
+        <div>
+          <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">UNDERLYING</div>
+          <input type="text" id="tUnderlying" placeholder="NIFTY / RELIANCE etc" style="margin-bottom:0">
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">TYPE</div>
+          <select id="tType">
+            <option value="CE">BUY CE</option>
+            <option value="PE">BUY PE</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">ENTRY PRICE</div>
+          <input type="number" id="tEntry" placeholder="e.g. 150" style="margin-bottom:0">
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">EXIT PRICE</div>
+          <input type="number" id="tExit" placeholder="e.g. 210 (0=SL hit)" style="margin-bottom:0">
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">LOTS</div>
+          <input type="number" id="tLots" placeholder="e.g. 1" value="1" style="margin-bottom:0">
+        </div>
+        <div>
+          <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">LOT SIZE</div>
+          <input type="number" id="tLotSz" placeholder="75 for NIFTY" value="75" style="margin-bottom:0">
+        </div>
+      </div>
+      <div style="font-size:8px;color:var(--gray);margin-bottom:4px;letter-spacing:1px;">CAPITAL USED (₹)</div>
+      <input type="number" id="tCapital" placeholder="e.g. 11250 (auto-fills from entry × lots × lotsize)">
+      <button class="btn green" onclick="logTrade()">✓ LOG TRADE & UPDATE COMPOUNDER</button>
+      <div class="emsg" id="tradeErr"></div>
+    </div>
+
+    <!-- Trade Log -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div class="sig-hist-hdr" style="margin:0;">TRADE HISTORY</div>
+        <button class="hbtn red" onclick="resetCompounder()">✕ RESET</button>
+      </div>
+      <table class="sht">
+        <thead><tr>
+          <th>#</th><th>DATE</th><th>UNDERLYING</th><th>TYPE</th><th>ENTRY</th><th>EXIT</th><th>P&L</th><th>CAPITAL</th><th>RESULT</th>
+        </tr></thead>
+        <tbody id="tradeLog"><tr><td colspan="9" style="color:var(--gray);padding:16px;text-align:center;">No trades logged yet. Log your first trade above!</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL: Deploy -->
+  <div id="panel-deploy" class="tpanel">
+
+    <div style="background:var(--bg2);border:1px solid var(--amber)44;border-radius:10px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--amber);margin-bottom:6px;">📱 HOW TO ACCESS FROM YOUR ANDROID</div>
+      <div style="font-size:10px;color:var(--gray);line-height:1.7;">
+        This HTML file needs to be hosted on a <strong style="color:var(--white)">public HTTPS URL</strong> for Chrome to make Kite API calls (local files get blocked by CORS).
+        Once deployed, open the URL in <strong style="color:var(--white)">Chrome on your Android</strong> → it works like a native app!
+        Tap the menu → <strong style="color:var(--white)">"Add to Home Screen"</strong> → it becomes a full-screen app icon.
+      </div>
+    </div>
+
+    <div class="deploy-card">
+      <span class="deploy-num">1</span>
+      <span class="deploy-title">Netlify Drop</span>
+      <span class="deploy-tag">FREE · FASTEST ★</span>
+      <div class="deploy-body">
+        <strong>Time: 30 seconds. No account needed.</strong><br>
+        1. Go to <a href="https://app.netlify.com/drop" target="_blank">app.netlify.com/drop</a><br>
+        2. Drag &amp; drop the <code>NiftyTerminal_v6.html</code> file<br>
+        3. Get instant HTTPS URL like <code>random-name.netlify.app</code><br>
+        4. Open that URL on your Android Chrome<br>
+        ⚠️ Free URLs expire after some time — create a free account to make permanent.
+      </div>
+    </div>
+
+    <div class="deploy-card">
+      <span class="deploy-num">2</span>
+      <span class="deploy-title">Cloudflare Pages</span>
+      <span class="deploy-tag">FREE · PERMANENT ★★</span>
+      <div class="deploy-body">
+        <strong>Best for permanent use. Free forever.</strong><br>
+        1. Create free account at <a href="https://pages.cloudflare.com" target="_blank">pages.cloudflare.com</a><br>
+        2. Click "Create a project" → "Direct Upload"<br>
+        3. Upload the HTML file (rename to <code>index.html</code> first)<br>
+        4. Get URL like <code>nifty-terminal.pages.dev</code><br>
+        5. Bookmark it on Android Chrome → Add to Home Screen
+      </div>
+    </div>
+
+    <div class="deploy-card">
+      <span class="deploy-num">3</span>
+      <span class="deploy-title">Tiiny.host</span>
+      <span class="deploy-tag">FREE</span>
+      <div class="deploy-body">
+        Go to <a href="https://tiiny.host" target="_blank">tiiny.host</a> → upload HTML → get link. Simple.
+      </div>
+    </div>
+
+    <div class="deploy-card">
+      <span class="deploy-num">4</span>
+      <span class="deploy-title">Cloud VPS (Best for Production)</span>
+      <span class="deploy-tag">₹200–500/MO</span>
+      <div class="deploy-body">
+        <strong>If you want maximum control:</strong><br>
+        1. Get a VPS from <strong>Hetzner</strong> (€3.29/mo), <strong>DigitalOcean</strong> ($4/mo), or <strong>AWS Lightsail</strong><br>
+        2. Install Nginx: <code>sudo apt install nginx</code><br>
+        3. Copy HTML to <code>/var/www/html/index.html</code><br>
+        4. Get free SSL: <code>sudo certbot --nginx</code><br>
+        5. Access via your VPS IP or domain on Android<br><br>
+        <strong>Recommended for daily trading use</strong> — most reliable, no timeouts.
+      </div>
+    </div>
+
+    <div class="deploy-card">
+      <span class="deploy-num">5</span>
+      <span class="deploy-title">Daily Access Token — Automation</span>
+      <span class="deploy-tag">KITE REQUIREMENT</span>
+      <div class="deploy-body">
+        Zerodha requires regenerating the access token <strong>every day</strong> after login. You can automate this:
+        <br><br>
+        <strong>Option A — Python script (PC):</strong> Run the Python script (see Step 3 on login screen), paste token.<br>
+        <strong>Option B — Kite postback URL:</strong> Set this file's hosted URL as the Redirect URL in your Kite app — then tokens auto-exchange when you login via Kite.<br>
+        <strong>Option C — Kite Connect Login Widget:</strong> Keep this app as your redirect URL and let it handle everything automatically.
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /termScreen -->
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ◈ NIFTY TERMINAL v4  |  KITE CONNECT EDITION
+   ═══════════════════════════════════════════════════════════════ */
+
+// ─── STATE ──────────────────────────────────────────────────────
+const S = {
+  apiKey:'', apiSecret:'', token:'',
+  instruments:[], expiryMap:{},
+  sym:'NIFTY', expiry:'',
+  chain:[], spot:0, vix:0,
+  auto:true, timer:null,
+  prevPrices:{}, lotSize:1,
+};
+
+// ─── LOCAL STORAGE ───────────────────────────────────────────────
+const LS = {
+  g: k => localStorage.getItem(k)||'',
+  s: (k,v) => localStorage.setItem(k,v),
+  d: k => localStorage.removeItem(k),
+};
+
+// ─── KITE API ─────────────────────────────────────────────────────
+const BASE = 'https://api.kite.trade';
+
+function hdr() {
+  return { 'X-Kite-Version':'3', 'Authorization':`token ${S.apiKey}:${S.token}` };
+}
+
+async function kg(path) {
+  const r = await fetch(BASE+path, { headers:hdr() });
+  if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+  const d = await r.json();
+  if (d.status==='error') throw new Error(d.message||'Kite API error');
+  return d;
+}
+
+// ─── SHA-256 / TOKEN EXCHANGE ────────────────────────────────────
+async function sha256(str) {
+  const buf = new TextEncoder().encode(str);
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// CORS proxies — ordered by POST reliability
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://cors.eu.org/${url}`,
+  url => `https://crossorigin.me/${url}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+function setProxyStatus(msg) {
+  const el = q('#proxyStatus');
+  if (el) { el.style.display = msg ? 'block' : 'none'; el.textContent = msg; }
+}
+
+async function tryPostWithProxy(targetUrl, bodyStr, proxyIndex) {
+  const proxiedUrl = PROXIES[proxyIndex](targetUrl);
+  const r = await fetch(proxiedUrl, {
+    method: 'POST',
+    headers: { 'X-Kite-Version':'3', 'Content-Type':'application/x-www-form-urlencoded' },
+    body: bodyStr,
+    signal: AbortSignal.timeout(8000),
+  });
+  const d = await r.json();
+  if (d.status === 'error') throw new Error(d.message || 'Token exchange failed');
+  if (!d.data || !d.data.access_token) throw new Error('No access_token in response');
+  return d.data.access_token;
+}
+
+async function exchangeToken(reqToken) {
+  const checksum = await sha256(S.apiKey + reqToken + S.apiSecret);
+  const bodyStr = new URLSearchParams({ api_key:S.apiKey, request_token:reqToken, checksum }).toString();
+  const targetUrl = BASE + '/session/token';
+  let lastErr = null;
+
+  // Try direct first
+  try {
+    setProxyStatus('Connecting...');
+    const r = await fetch(targetUrl, {
+      method:'POST',
+      headers:{ 'X-Kite-Version':'3', 'Content-Type':'application/x-www-form-urlencoded' },
+      body: bodyStr,
+      signal: AbortSignal.timeout(8000),
+    });
+    const d = await r.json();
+    if (d.status === 'error') throw new Error(d.message || 'Token exchange failed');
+    if (d.data && d.data.access_token) { setProxyStatus(''); return d.data.access_token; }
+    throw new Error('No access_token in response');
+  } catch(e) {
+    lastErr = e;
+    // Only fall through to proxies on network/CORS errors, not API errors
+    const isNetworkErr = e.message.includes('fetch') || e.message.includes('Failed') ||
+                         e.message.includes('network') || e.message.includes('abort') ||
+                         e.name === 'AbortError' || e.name === 'TypeError';
+    if (!isNetworkErr) { setProxyStatus(''); throw e; }
+  }
+
+  // Try each proxy in sequence
+  for (let i = 0; i < PROXIES.length; i++) {
+    try {
+      setProxyStatus(`Trying relay ${i+1} of ${PROXIES.length}...`);
+      const tok = await tryPostWithProxy(targetUrl, bodyStr, i);
+      setProxyStatus('');
+      return tok;
+    } catch(e) {
+      lastErr = e;
+      // If it's a real API error (not network), stop trying
+      if (e.message && !e.message.includes('fetch') && !e.message.includes('Failed') &&
+          !e.message.includes('network') && e.name !== 'AbortError' && e.name !== 'TypeError') {
+        setProxyStatus('');
+        throw e;
+      }
+    }
+  }
+  setProxyStatus('');
+  throw new Error('All connection methods failed. Please use the Manual Token method below — generate token via Python and paste here.');
+}
+
+// ─── LOGIN FLOW ──────────────────────────────────────────────────
+function saveCredentials() {
+  const k = q('#apiKey').value.trim();
+  const sec = q('#apiSecret').value.trim();
+  if (!k || !sec) return showE('e1','Enter both API Key and API Secret.');
+  S.apiKey=k; S.apiSecret=sec;
+  LS.s('kite_key',k); LS.s('kite_sec',sec);
+  hideE('e1'); showS('s1','✓ Saved. Now proceed to Step 02.');
+  q('#card1').classList.add('done');
+}
+
+let _timerInterval = null;
+function startTokenTimer() {
+  clearInterval(_timerInterval);
+  let secs = 120;
+  const wrap = q('#tokenTimer'), val = q('#timerVal');
+  if (wrap) wrap.style.display = 'block';
+  if (val) { val.textContent = '2:00'; val.style.color = 'var(--amber)'; }
+  _timerInterval = setInterval(() => {
+    secs--;
+    const m = Math.floor(secs/60), s = secs%60;
+    if (val) val.textContent = m+':'+(s<10?'0':'')+s;
+    if (secs <= 30 && val) val.style.color = 'var(--red2)';
+    if (secs <= 0) {
+      clearInterval(_timerInterval);
+      if (val) val.textContent = 'EXPIRED — Login again!';
+    }
+  }, 1000);
+}
+
+function stopTokenTimer() {
+  clearInterval(_timerInterval);
+  const wrap = q('#tokenTimer');
+  if (wrap) wrap.style.display = 'none';
+}
+
+async function pasteFromClipboard() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text && text.trim()) {
+      q('#redir').value = text.trim();
+      hideE('e3');
+    } else {
+      showE('e3','Clipboard empty. Copy the URL from the address bar first.');
+    }
+  } catch(e) {
+    q('#redir').focus();
+    q('#redir').select();
+    showE('e3','Tap and hold inside the box below, then tap Paste.');
+  }
+}
+
+function openLogin() {
+  const key = S.apiKey || LS.g('kite_key');
+  if (!key) return showE('e1','Enter and save your API Key in Step 02 first.');
+  window.open(`https://kite.zerodha.com/connect/login?api_key=${key}&v=3`, '_blank');
+  startTokenTimer();
+}
+
+function openKiteWithKey() { openLogin(); }
+
+async function pasteIntoReqUrl() {
+  try {
+    const text = await navigator.clipboard.readText();
+    if (text && text.trim()) {
+      q('#reqTokenUrl').value = text.trim();
+      hideE('e3');
+    } else {
+      q('#reqTokenUrl').focus();
+    }
+  } catch(e) {
+    q('#reqTokenUrl').focus();
+  }
+}
+
+async function extractAndExchange() {
+  const raw = q('#reqTokenUrl').value.trim();
+  if (!raw) { showE('e3','Paste the redirect URL first.'); return; }
+
+  // Extract request_token from URL
+  let reqToken = '';
+  try {
+    const url = new URL(raw.includes('://') ? raw : 'https://x.com/?' + raw.split('?')[1]);
+    reqToken = url.searchParams.get('request_token') || '';
+  } catch(_) {}
+  if (!reqToken) {
+    const m = raw.match(/[?&]request_token=([^&\s]+)/);
+    reqToken = m ? m[1] : '';
+  }
+  if (!reqToken) { showE('e3','❌ Could not find request_token in URL. Copy the full URL from address bar.'); return; }
+
+  const key = S.apiKey || LS.g('kite_key');
+  const sec = S.apiSecret || LS.g('kite_sec');
+  if (!key || !sec) { showE('e3','❌ Save your API Key + Secret in Step 02 first.'); return; }
+
+  S.apiKey = key; S.apiSecret = sec;
+  setProxyStatus('Exchanging token...');
+  hideE('e3');
+
+  try {
+    const tok = await exchangeToken(reqToken);
+    S.token = tok;
+    LS.s('kite_tok', tok);
+    setProxyStatus('');
+    // Auto-fill the token field so user can see it
+    q('#manTok').value = tok;
+    showS('s3', '✅ Token obtained! Tap LAUNCH TERMINAL above.');
+    // Also auto-launch
+    setTimeout(() => connectManual(), 800);
+  } catch(e) {
+    setProxyStatus('');
+    showE('e3', '❌ Exchange failed: ' + e.message + '\n\nCopy the access_token manually using the Python script.');
+  }
+}
+
+async function connectViaUrl() {
+  const raw = q('#redir').value.trim();
+  if (!raw) return showE('e3','Paste the redirect URL first.');
+
+  let reqToken = '';
+  try {
+    const url = new URL(raw.includes('://')?raw:'https://x.com/?'+raw.split('?')[1]);
+    reqToken = url.searchParams.get('request_token')||'';
+  } catch(_) {}
+  if (!reqToken) {
+    const m = raw.match(/[?&]request_token=([^&\s]+)/);
+    reqToken = m?m[1]:'';
+  }
+  if (!reqToken) return showE('e3','Could not find request_token. Copy the full URL from address bar.');
+
+  const key = S.apiKey||LS.g('kite_key');
+  const sec = S.apiSecret||LS.g('kite_sec');
+  if (!key||!sec) return showE('e3','Complete Step 01 first — API Key and Secret are required.');
+  S.apiKey=key; S.apiSecret=sec;
+
+  const btn = q('#connBtn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="sp"></span>CONNECTING...';
+  hideE('e3');
+
+  try {
+    const tok = await exchangeToken(reqToken);
+    S.token=tok; LS.s('kite_tok',tok);
+    stopTokenTimer();
+    showS('s3','✓ Token obtained! Launching terminal...');
+    setTimeout(launch, 700);
+  } catch(e) {
+    showE('e3', e.message);
+    btn.disabled=false; btn.innerHTML='⚡ Connect Terminal';
+  }
+}
+
+function connectManual() {
+  const tok = q('#manTok').value.trim();
+  const key = S.apiKey||LS.g('kite_key');
+  if (!tok) return showE('em','Enter the access token.');
+  if (!key) return showE('em','Enter your API Key in Step 01 first.');
+  S.apiKey=key; S.token=tok;
+  LS.s('kite_tok',tok);
+  launch();
+}
+
+function clearAll() {
+  LS.d('kite_key');LS.d('kite_sec');LS.d('kite_tok');
+  LS.d('kite_inst_csv');LS.d('kite_inst_day');
+  q('#apiKey').value=''; q('#apiSecret').value='';
+  showS('s1','Cleared. Enter new credentials.');
+}
+
+// ─── LAUNCH ──────────────────────────────────────────────────────
+async function launch() {
+  showLoad('LOADING INSTRUMENTS...', 10);
+  q('#loginScreen').style.display='none';
+  q('#termScreen').style.display='flex';
+
+  // Show token debug strip
+  updateTokenStrip();
+
+  try {
+    await loadInstruments();
+    setLoad('FETCHING MARKET DATA...', 60);
+    await doRefresh();
+    startAuto(true);
+    startClock();
+  } catch(e) {
+    const msg = e.message || 'Unknown error';
+    setDstat('ERROR: '+msg,'err');
+    showChainError(msg, 'api');
+    console.error(e);
+  }
+  hideLoad();
+}
+
+function updateTokenStrip() {
+  const strip = q('#tokenStrip');
+  if (!strip) return;
+  const tok = S.token || LS.g('kite_tok');
+  const key = S.apiKey || LS.g('kite_key');
+  const txt = q('#tokenStripText');
+  if (!txt) return;
+  if (tok && key) {
+    txt.textContent = '🔑 Key:' + key.slice(0,6) + '… Token:…' + tok.slice(-6) + ' | Tap DIAGNOSE if data not loading';
+    txt.style.color = '#22c55e';
+    strip.style.borderBottomColor = '#22c55e22';
+  } else if (!key) {
+    txt.textContent = '⚠️ No API Key saved — tap ⏏ to go back and save credentials';
+    txt.style.color = '#ef4444';
+  } else {
+    txt.textContent = '⚠️ No access token — tap ⏏ to login again';
+    txt.style.color = '#ef4444';
+  }
+}
+
+function showDiag() {
+  const tok = S.token || LS.g('kite_tok');
+  const key = S.apiKey || LS.g('kite_key');
+  const sec = LS.g('kite_sec');
+  const instDay = LS.g('kite_inst_day');
+  const today = new Date().toISOString().slice(0,10);
+  const instCached = instDay === today && LS.g('kite_inst_csv').length > 100;
+
+  const items = [
+    { label:'API KEY', val: key ? key.slice(0,8)+'…' : '❌ MISSING', ok: !!key },
+    { label:'API SECRET', val: sec ? '…saved…' : '❌ MISSING', ok: !!sec },
+    { label:'ACCESS TOKEN', val: tok ? '…'+tok.slice(-8) : '❌ MISSING', ok: !!tok },
+    { label:'TOKEN IN S.token', val: S.token ? '✅ SET' : '❌ EMPTY', ok: !!S.token },
+    { label:'INSTRUMENTS', val: instCached ? '✅ CACHED TODAY' : '❌ NOT CACHED', ok: instCached },
+    { label:'INSTRUMENTS COUNT', val: S.instruments.length || '0', ok: S.instruments.length > 0 },
+    { label:'SPOT PRICE', val: S.spot || '0 (not fetched)', ok: S.spot > 0 },
+    { label:'EXPIRY SELECTED', val: S.expiry || '❌ NONE', ok: !!S.expiry },
+  ];
+
+  q('#diagGrid').innerHTML = items.map(i => `
+    <div style="background:${i.ok?'#071a07':'#1a0808'};border:1px solid ${i.ok?'#22c55e33':'#ef444433'};border-radius:6px;padding:8px 10px;">
+      <div style="font-size:7px;font-weight:800;letter-spacing:1px;color:#4a6478;margin-bottom:3px;">${i.label}</div>
+      <div style="font-size:10px;font-weight:700;color:${i.ok?'#22c55e':'#ef4444'};word-break:break-all;">${i.val}</div>
+    </div>`).join('');
+
+  q('#diagModal').style.display = 'block';
+  q('#diagApiResult').textContent = '';
+}
+
+async function testAPI() {
+  const res = q('#diagApiResult');
+  res.textContent = 'Testing...';
+  res.style.color = '#f59e0b';
+  try {
+    if (!S.token || !S.apiKey) throw new Error('No token/key — go back to login screen');
+    const r = await fetch('https://api.kite.trade/user/profile', { headers: hdr() });
+    const d = await r.json();
+    if (d.status === 'error') throw new Error(d.message);
+    res.innerHTML = `✅ <strong style="color:#22c55e">API WORKING!</strong><br>
+      User: ${d.data?.user_name || '—'}<br>
+      Email: ${d.data?.email || '—'}<br>
+      Broker: ${d.data?.broker || '—'}<br><br>
+      <span style="color:#f59e0b">If API works but data not loading → tap "CLEAR INSTRUMENT CACHE" below then tap ↻ REFRESH</span>`;
+    res.style.color = '#22c55e';
+    // If API works, try to reload data
+    setTimeout(() => { q('#diagModal').style.display='none'; doRefresh(); }, 3000);
+  } catch(e) {
+    res.innerHTML = `❌ <strong style="color:#ef4444">FAILED: ${e.message}</strong><br><br>
+      <span style="color:#f87171">This means your token is expired or invalid.<br>
+      Tap "FULL LOGOUT & RELOGIN" → login fresh → data will load.</span>`;
+    res.style.color = '#ef4444';
+  }
+}
+
+function applyDiagToken() {
+  const tok = q('#diagToken').value.trim();
+  if (!tok || tok.length < 10) return alert('Enter a valid access token');
+  const key = S.apiKey || LS.g('kite_key');
+  if (!key) return alert('No API key found — go to login screen first');
+  S.token = tok;
+  S.apiKey = key;
+  LS.s('kite_tok', tok);
+  q('#diagModal').style.display = 'none';
+  updateTokenStrip();
+  showLoad('RELOADING WITH NEW TOKEN...', 20);
+  loadInstruments().then(() => {
+    doRefresh();
+    startAuto(true);
+    hideLoad();
+  }).catch(e => {
+    hideLoad();
+    alert('Still failing: ' + e.message);
+  });
+}
+
+function clearInstrCache() {
+  LS.d('kite_inst_csv');
+  LS.d('kite_inst_day');
+  S.instruments = [];
+  S.expiryMap = {};
+  const r = q('#diagApiResult');
+  if (r) { r.textContent = '✅ Cache cleared! Now tap ↻ REFRESH'; r.style.color='#22c55e'; }
+  setTimeout(() => { q('#diagModal').style.display='none'; doRefresh(); }, 1500);
+}
+
+// ─── INSTRUMENTS ─────────────────────────────────────────────────
+async function loadInstruments() {
+  const today = new Date().toISOString().slice(0,10);
+  let csv = '';
+
+  if (LS.g('kite_inst_day')===today && LS.g('kite_inst_csv')) {
+    csv = LS.g('kite_inst_csv');
+  } else {
+    setLoad('DOWNLOADING INSTRUMENTS FROM KITE...', 30);
+    const r = await fetch(BASE+'/instruments/NFO', { headers:hdr() });
+    if (r.status === 403 || r.status === 401) {
+      throw new Error('Token expired or invalid (HTTP ' + r.status + '). Tap ⏏ to login again.');
+    }
+    if (!r.ok) {
+      throw new Error('Instruments fetch failed: HTTP ' + r.status + '. Check API key and token.');
+    }
+    csv = await r.text();
+    if (!csv || csv.length < 100) {
+      throw new Error('Empty instruments response. Token may be invalid.');
+    }
+    LS.s('kite_inst_csv', csv);
+    LS.s('kite_inst_day', today);
+  }
+
+  parseCSV(csv);
+  setLoad('INSTRUMENTS LOADED — FETCHING QUOTES...', 55);
+}
+
+function parseCSV(csv) {
+  const lines = csv.trim().split('\n');
+  const hdrs = lines[0].split(',');
+  const ix = {};
+  hdrs.forEach((h,i) => ix[h.trim()]=i);
+
+  const instruments = [];
+  for (let i=1;i<lines.length;i++) {
+    const c = lines[i].split(',');
+    if (c.length < 8) continue;
+    const type = (c[ix['instrument_type']]||'').trim();
+    if (type!=='CE'&&type!=='PE') continue;
+    instruments.push({
+      token:  c[ix['instrument_token']],
+      sym:    (c[ix['tradingsymbol']]||'').trim(),
+      name:   (c[ix['name']]||'').trim(),
+      expiry: (c[ix['expiry']]||'').trim(),
+      strike: parseFloat(c[ix['strike']])||0,
+      type,
+      lot:    parseInt(c[ix['lot_size']])||1,
+    });
+  }
+  S.instruments = instruments;
+
+  // Build expiry map
+  const idxNames = ['NIFTY','BANKNIFTY','FINNIFTY','MIDCPNIFTY'];
+  S.expiryMap={};
+  idxNames.forEach(name => {
+    S.expiryMap[name]=[...new Set(
+      instruments.filter(i=>i.name===name&&i.expiry).map(i=>i.expiry)
+    )].sort();
+  });
+
+  fillExpiries();
+}
+
+function fillExpiries() {
+  const sel = q('#expSel');
+  const exps = S.expiryMap[S.sym]||[];
+  sel.innerHTML = exps.slice(0,15).map(e=>
+    `<option value="${e}">${fmtExp(e)}</option>`
+  ).join('');
+  if (exps.length) { S.expiry=exps[0]; sel.value=exps[0]; }
+}
+
+function fmtExp(e) {
+  if(!e) return '—';
+  const d=new Date(e);
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});
+}
+
+// ─── REFRESH DATA ─────────────────────────────────────────────────
+async function doRefresh() {
+  try {
+    setDstat('FETCHING...','load');
+    // Validate token exists before calling API
+    if (!S.token || !S.apiKey) {
+      const msg = !S.token ? 'No access token — tap ⏏ to reconnect' : 'No API key — tap ⏏ to reconnect';
+      setDstat(msg, 'err');
+      q('#sdot').className = 'sdot err';
+      showChainError(msg, 'token');
+      return;
+    }
+    await Promise.all([ fetchSpot(), fetchChain() ]);
+    calcAnalytics();
+    setDstat('LIVE ●','live');
+    q('#sdot').className='sdot live';
+    q('#lupd').textContent='Updated '+new Date().toLocaleTimeString('en-IN');
+  } catch(e) {
+    setDstat('ERROR','err');
+    q('#sdot').className='sdot err';
+    const msg = e.message || 'Unknown error';
+    q('#dstat').textContent = 'ERR: ' + msg;
+    showChainError(msg, 'api');
+  }
+}
+
+function showChainError(msg, type) {
+  const isToken = type === 'token' || msg.toLowerCase().includes('token') ||
+                  msg.includes('403') || msg.includes('401') || msg.includes('InvalidToken') ||
+                  msg.includes('Forbidden') || msg.includes('Unauthorized');
+  const isNetwork = msg.toLowerCase().includes('fetch') || msg.toLowerCase().includes('network') ||
+                    msg.toLowerCase().includes('failed');
+
+  const body = q('#tbody');
+  if (!body) return;
+  body.innerHTML = `<tr><td colspan="13" style="padding:28px 14px;">
+    <div style="background:#1a0808;border:1px solid #ef444444;border-radius:8px;padding:16px;text-align:left;max-width:400px;margin:0 auto;">
+      <div style="font-size:9px;font-weight:800;letter-spacing:2px;color:#ef4444;margin-bottom:8px;">
+        ${isToken ? '🔑 TOKEN / AUTH ERROR' : isNetwork ? '🌐 NETWORK ERROR' : '⚠️ API ERROR'}
+      </div>
+      <div style="font-size:10px;color:#f87171;margin-bottom:12px;word-break:break-all;">${msg}</div>
+      ${isToken ? `
+        <div style="font-size:10px;color:#4a6478;margin-bottom:10px;line-height:1.7;">
+          Your access token is <strong style="color:#ef4444">expired or invalid</strong>.<br>
+          Kite tokens expire at <strong style="color:#f59e0b">midnight IST</strong> every day.<br>
+          You must login again each morning.
+        </div>
+        <button onclick="doLogout()" style="background:#ef4444;border:none;color:#fff;padding:9px 20px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;width:100%;letter-spacing:1px;">
+          ⏏ LOGOUT & GET NEW TOKEN
+        </button>` : `
+        <div style="font-size:10px;color:#4a6478;margin-bottom:10px;">
+          Check your WiFi connection and try again.
+        </div>
+        <button onclick="doRefresh()" style="background:#f59e0b;border:none;color:#000;padding:9px 20px;border-radius:6px;font-size:11px;font-weight:800;cursor:pointer;width:100%;letter-spacing:1px;">
+          ↻ RETRY
+        </button>`}
+    </div>
+  </td></tr>`;
+}
+
+async function fetchSpot() {
+  const insts = ['NSE:NIFTY 50','NSE:INDIA VIX'];
+  if (S.sym==='BANKNIFTY') insts.push('NSE:NIFTY BANK');
+
+  const qs = insts.map(i=>'i='+encodeURIComponent(i)).join('&');
+  const d = await kg('/quote?'+qs);
+  const data = d.data;
+
+  const ni = data['NSE:NIFTY 50'];
+  const vi = data['NSE:INDIA VIX'];
+  const bi = data['NSE:NIFTY BANK'];
+
+  if (ni) { S.spot=ni.last_price; setSpot('nP','nC',ni); }
+  if (vi) { S.vix=vi.last_price;  setSpot('vP','vC',vi,true); }
+  if (bi) { q('#bnkItem').style.display=''; setSpot('bP','bC',bi); }
+
+  updateMktBadge();
+}
+
+function setSpot(pid,cid,q2,isVix=false) {
+  const el=q('#'+pid), ch=q('#'+cid);
+  const prev=parseFloat(el.dataset.p||q2.last_price);
+  const p=q2.last_price, chg=q2.net_change||0;
+  el.textContent = isVix ? p.toFixed(2) : p.toLocaleString('en-IN',{maximumFractionDigits:2});
+  el.className='sval'+(p>prev?' up':p<prev?' dn':'');
+  el.dataset.p=p;
+  const sg=chg>=0?'+':'';
+  ch.textContent=`${sg}${chg.toFixed(2)}`;
+  ch.style.color=chg>=0?'var(--green)':'var(--red)';
+}
+
+async function fetchChain() {
+  if (!S.expiry||!S.instruments.length) return;
+
+  const filtered = S.instruments.filter(i=>
+    i.name===S.sym && i.expiry===S.expiry
+  );
+  if (!filtered.length) return;
+
+  const strikes = [...new Set(filtered.map(i=>i.strike))].sort((a,b)=>a-b);
+  const atm = nearestStrike(strikes, S.spot||strikes[Math.floor(strikes.length/2)]);
+  const atmI = strikes.indexOf(atm);
+  const lo = Math.max(0, atmI-16);
+  const hi = Math.min(strikes.length-1, atmI+16);
+  const sel = strikes.slice(lo, hi+1);
+
+  const insts=[];
+  sel.forEach(st=>{
+    const ce=filtered.find(i=>i.strike===st&&i.type==='CE');
+    const pe=filtered.find(i=>i.strike===st&&i.type==='PE');
+    if(ce) insts.push('NFO:'+ce.sym);
+    if(pe) insts.push('NFO:'+pe.sym);
+  });
+  if(!insts.length) return;
+
+  // Lot size
+  const f0=filtered[0];
+  if(f0) { S.lotSize=f0.lot; q('#slotSz').textContent=f0.lot; }
+
+  // Batch quote
+  const qs=insts.map(i=>'i='+encodeURIComponent(i)).join('&');
+  const d=await kg('/quote?'+qs);
+  const qdata=d.data;
+
+  const dte=getDte(S.expiry);
+
+  const chain=[];
+  sel.forEach(st=>{
+    const ceInst=filtered.find(i=>i.strike===st&&i.type==='CE');
+    const peInst=filtered.find(i=>i.strike===st&&i.type==='PE');
+    const ceD=ceInst?qdata['NFO:'+ceInst.sym]:null;
+    const peD=peInst?qdata['NFO:'+peInst.sym]:null;
+
+    const ceIv=ceD?calcIV(ceD.last_price,S.spot,st,dte,'CE'):0;
+    const peIv=peD?calcIV(peD.last_price,S.spot,st,dte,'PE'):0;
+
+    chain.push({
+      st, atm:st===atm,
+      ce:ceD?{
+        ltp:ceD.last_price, oi:ceD.oi||0,
+        oiChg:ceD.oi_day_high&&ceD.oi_day_low?(ceD.oi-ceD.oi_day_low):0,
+        bid:ceD.depth?.sell?.[0]?.price||0,
+        ask:ceD.depth?.buy?.[0]?.price||0,
+        vol:ceD.volume||0, chg:ceD.net_change||0, iv:ceIv,
+        sym:ceInst?.sym,
+      }:null,
+      pe:peD?{
+        ltp:peD.last_price, oi:peD.oi||0,
+        oiChg:peD.oi_day_high&&peD.oi_day_low?(peD.oi-peD.oi_day_low):0,
+        bid:peD.depth?.sell?.[0]?.price||0,
+        ask:peD.depth?.buy?.[0]?.price||0,
+        vol:peD.volume||0, chg:peD.net_change||0, iv:peIv,
+        sym:peInst?.sym,
+      }:null,
+    });
+  });
+
+  S.chain=chain;
+  renderChain(chain);
+  q('#scnt').textContent=chain.length;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────
+function renderChain(chain) {
+  if(!chain.length) return;
+  const maxCE=Math.max(1,...chain.map(r=>r.ce?.oi||0));
+  const maxPE=Math.max(1,...chain.map(r=>r.pe?.oi||0));
+  const tbody=q('#tbody');
+  tbody.innerHTML='';
+
+  chain.forEach(row=>{
+    const tr=document.createElement('tr');
+    const ceOiW=row.ce?Math.round(row.ce.oi/maxCE*60):0;
+    const peOiW=row.pe?Math.round(row.pe.oi/maxPE*60):0;
+    const spread=row.ce&&row.pe?(row.ce.ask-row.ce.bid+row.pe.ask-row.pe.bid).toFixed(1):'—';
+    const pcr=row.ce?.oi>0?(row.pe?.oi/row.ce?.oi).toFixed(2):'—';
+    const cePrev=S.prevPrices[row.ce?.sym]||0;
+    const pePrev=S.prevPrices[row.pe?.sym]||0;
+    const ceFlash=row.ce?.ltp>cePrev?'fu':row.ce?.ltp<cePrev?'fd':'';
+    const peFlash=row.pe?.ltp>pePrev?'fu':row.pe?.ltp<pePrev?'fd':'';
+    if(row.ce) S.prevPrices[row.ce.sym]=row.ce.ltp;
+    if(row.pe) S.prevPrices[row.pe.sym]=row.pe.ltp;
+
+    const ceOi=row.ce?.oiChg||0;
+    const peOi=row.pe?.oiChg||0;
+
+    tr.innerHTML=`
+      <td class="oiv"><div class="oirow ce"><div class="obar" style="width:${ceOiW}px"></div>${fmtOI(row.ce?.oi)}</div></td>
+      <td class="${ceOi>=0?'chg-up':'chg-dn'}">${ceOi>=0?'+':''}${fmtOI(ceOi)}</td>
+      <td class="ivv">${row.ce?.iv?row.ce.iv.toFixed(1)+'%':'—'}</td>
+      <td class="bask">${f2(row.ce?.bid)}</td>
+      <td class="celtp ${ceFlash}">${f2(row.ce?.ltp)}</td>
+      <td class="kstrike${row.atm?' atm':''}">${row.st.toLocaleString('en-IN')}${row.atm?' ◈':''}</td>
+      <td class="peltp ${peFlash}">${f2(row.pe?.ltp)}</td>
+      <td class="bask">${f2(row.pe?.bid)}</td>
+      <td class="ivv">${row.pe?.iv?row.pe.iv.toFixed(1)+'%':'—'}</td>
+      <td class="${peOi>=0?'chg-up':'chg-dn'}">${peOi>=0?'+':''}${fmtOI(peOi)}</td>
+      <td class="oiv"><div class="oirow pe">${fmtOI(row.pe?.oi)}<div class="obar pe" style="width:${peOiW}px"></div></div></td>
+      <td style="text-align:center;color:var(--gray)">${spread}</td>
+      <td style="text-align:center;color:${pcr>=1.2?'var(--green)':pcr<=0.8?'var(--red)':'var(--amber)'}">${pcr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Scroll ATM into view
+  const atmRow=[...tbody.querySelectorAll('tr')].find(r=>r.querySelector('.atm'));
+  if(atmRow) atmRow.scrollIntoView({block:'center',behavior:'smooth'});
+}
+
+// ─── ANALYTICS ────────────────────────────────────────────────────
+function calcAnalytics() {
+  const ch=S.chain;
+  if(!ch.length) return;
+
+  const totCE=ch.reduce((s,r)=>s+(r.ce?.oi||0),0);
+  const totPE=ch.reduce((s,r)=>s+(r.pe?.oi||0),0);
+  const pcr=totCE>0?totPE/totCE:0;
+  const mp=maxPain(ch);
+  const atm=ch.find(r=>r.atm);
+
+  let sent,sentCls;
+  if(pcr>1.3){sent='🐂 BULLISH';sentCls='bull';}
+  else if(pcr<0.7){sent='🐻 BEARISH';sentCls='bear';}
+  else{sent='⚖ NEUTRAL';sentCls='neu';}
+
+  const ceIv=atm?.ce?.iv||0, peIv=atm?.pe?.iv||0;
+  const skew=(ceIv-peIv).toFixed(1);
+
+  // OI signal: if CE OI rising faster than PE → bearish positioning
+  const totOIChgCE=ch.reduce((s,r)=>s+(r.ce?.oiChg>0?r.ce.oiChg:0),0);
+  const totOIChgPE=ch.reduce((s,r)=>s+(r.pe?.oiChg>0?r.pe.oiChg:0),0);
+  let oisig='NEUTRAL', oicls='neu';
+  if(totOIChgCE>totOIChgPE*1.3){oisig='CALL BUILD';oicls='bear';}
+  else if(totOIChgPE>totOIChgCE*1.3){oisig='PUT BUILD';oicls='bull';}
+
+  setM('mPCR',pcr.toFixed(2),pcr>1.2?'bull':pcr<0.8?'bear':'neu');
+  setM('mMP',mp?mp.toLocaleString('en-IN'):'—','neu');
+  setM('mCE',fmtOI(totCE),'');
+  setM('mPE',fmtOI(totPE),'');
+  setM('mATM',atm?atm.st.toLocaleString('en-IN'):'—','neu');
+  setM('mCI',ceIv?ceIv.toFixed(1)+'%':'—','');
+  setM('mPI',peIv?peIv.toFixed(1)+'%':'—','');
+  setM('mSK',parseFloat(skew)!==0?skew+'%':'0%',parseFloat(skew)>0?'bear':'bull');
+  setM('mST',sent,sentCls);
+  setM('mOIS',oisig,oicls);
+}
+
+function maxPain(ch) {
+  let minLoss=Infinity,res=0;
+  ch.forEach(row=>{
+    let loss=0;
+    ch.forEach(opt=>{
+      if(opt.ce?.oi) loss+=Math.max(0,opt.st-row.st)*opt.ce.oi;
+      if(opt.pe?.oi) loss+=Math.max(0,row.st-opt.st)*opt.pe.oi;
+    });
+    if(loss<minLoss){minLoss=loss;res=row.st;}
+  });
+  return res;
+}
+
+// ─── IV CALC (Newton-Raphson Black-Scholes) ───────────────────────
+function calcIV(price,S0,K,dte,type) {
+  if(!price||!S0||!K||dte<=0) return 0;
+  const T=dte/365, r=0.065;
+  let sig=0.2;
+  for(let i=0;i<120;i++){
+    const bsp=bs(S0,K,T,r,sig,type);
+    const vg=vega(S0,K,T,r,sig);
+    if(Math.abs(vg)<1e-10) break;
+    const d=bsp-price;
+    if(Math.abs(d)<0.001) break;
+    sig-=d/vg;
+    if(sig<=0||sig>10) return 0;
+  }
+  return sig>0&&sig<5?sig*100:0;
+}
+
+function bs(S0,K,T,r,s,tp){
+  const d1=(Math.log(S0/K)+(r+.5*s*s)*T)/(s*Math.sqrt(T));
+  const d2=d1-s*Math.sqrt(T);
+  return tp==='CE'?S0*N(d1)-K*Math.exp(-r*T)*N(d2):K*Math.exp(-r*T)*N(-d2)-S0*N(-d1);
+}
+function vega(S0,K,T,r,s){
+  const d1=(Math.log(S0/K)+(r+.5*s*s)*T)/(s*Math.sqrt(T));
+  return S0*Math.sqrt(T)*npdf(d1);
+}
+function N(x){
+  const a=0.2316419,p=[0.319381530,-0.356563782,1.781477937,-1.821255978,1.330274429];
+  const t=1/(1+a*Math.abs(x));
+  let poly=0,tp=t;
+  p.forEach(c=>{poly+=c*tp;tp*=t;});
+  const c=1-npdf(x)*poly;
+  return x>=0?c:1-c;
+}
+function npdf(x){return Math.exp(-.5*x*x)/Math.sqrt(2*Math.PI);}
+
+// ─── MARKET BADGE & CLOCK ─────────────────────────────────────────
+function updateMktBadge(){
+  const now=new Date();
+  const ist=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+  const h=ist.getHours(),m=ist.getMinutes(),day=ist.getDay();
+  const mins=h*60+m;
+  const b=q('#mbadge');
+  if(day===0||day===6){b.textContent='WEEKEND';b.className='mbadge closed';}
+  else if(mins>=9*60+15&&mins<=15*60+30){b.textContent='● MARKET OPEN';b.className='mbadge open';}
+  else if(mins>=9*60&&mins<9*60+15){b.textContent='PRE-OPEN';b.className='mbadge pre';}
+  else{b.textContent='MARKET CLOSED';b.className='mbadge closed';}
+}
+
+function startClock(){
+  function tick(){
+    const ist=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+    q('#clk').textContent=ist.toLocaleTimeString('en-IN',{hour12:false});
+  }
+  tick(); setInterval(tick,1000);
+}
+
+// ─── AUTO REFRESH ─────────────────────────────────────────────────
+function startAuto(on){
+  S.auto=on;
+  if(S.timer){clearInterval(S.timer);}
+  const btn=q('#autoBtn');
+  if(on){S.timer=setInterval(doRefresh,5000);btn.textContent='AUTO ●';btn.classList.add('on');}
+  else{btn.textContent='AUTO ○';btn.classList.remove('on');}
+}
+function toggleAuto(){startAuto(!S.auto);}
+
+// ─── EVENT HANDLERS ───────────────────────────────────────────────
+function onSymChange(){
+  S.sym=q('#symSel').value;
+  q('#bnkItem').style.display=S.sym==='BANKNIFTY'?'':'none';
+  fillExpiries();
+  doRefresh();
+}
+function onExpChange(){
+  S.expiry=q('#expSel').value;
+  doRefresh();
+}
+function doLogout(){
+  if(!confirm('Logout? Daily access token will be cleared.')) return;
+  LS.d('kite_tok');
+  S.token='';
+  if(S.timer) clearInterval(S.timer);
+  q('#termScreen').style.display='none';
+  q('#loginScreen').style.display='flex';
+  q('#redir').value='';
+  q('#s3').style.display='none';
+  q('#connBtn').disabled=false;
+  q('#connBtn').innerHTML='⚡ Connect Terminal';
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────
+function nearestStrike(arr,val){
+  return arr.reduce((a,b)=>Math.abs(b-val)<Math.abs(a-val)?b:a);
+}
+function getDte(exp){
+  const d=new Date(exp),n=new Date();
+  return Math.max(1,Math.ceil((d-n)/(864e5)));
+}
+function fmtOI(v){
+  if(!v&&v!==0) return '—';
+  if(Math.abs(v)>=1e7) return (v/1e7).toFixed(2)+'Cr';
+  if(Math.abs(v)>=1e5) return (v/1e5).toFixed(2)+'L';
+  if(Math.abs(v)>=1e3) return (v/1e3).toFixed(1)+'K';
+  return v.toString();
+}
+function f2(v){return (v!=null&&v!==0)?v.toFixed(2):'—';}
+function setM(id,val,cls){
+  const el=q('#'+id); el.textContent=val;
+  el.className='mval'+(cls?' '+cls:'');
+}
+function setDstat(txt,type){
+  const el=q('#dstat');el.textContent=txt;
+  el.style.color=type==='live'?'var(--green)':type==='err'?'var(--red)':'var(--amber)';
+}
+function showE(id,msg){const el=q('#'+id);el.textContent=msg;el.style.display='block';}
+function hideE(id){q('#'+id).style.display='none';}
+function showS(id,msg){const el=q('#'+id);el.textContent=msg;el.style.display='block';}
+function showLoad(txt,pct){q('#loadOverlay').style.display='flex';setLoad(txt,pct);}
+function setLoad(txt,pct){q('#loadTxt').textContent=txt;q('#loadFill').style.width=pct+'%';}
+function hideLoad(){q('#loadFill').style.width='100%';setTimeout(()=>q('#loadOverlay').style.display='none',300);}
+function q(sel){return document.querySelector(sel);}
+
+// ─── INIT ──────────────────────────────────────────────────────────
+// Stores the request_token found in URL so we can retry after credentials saved
+let _pendingRT = null;
+
+(function init(){
+  const key = LS.g('kite_key'), sec = LS.g('kite_sec'), tok = LS.g('kite_tok');
+  if (key) q('#apiKey').value = key;
+  if (sec) q('#apiSecret').value = sec;
+  S.apiKey = key; S.apiSecret = sec;
+
+  // ── Detect environment ─────────────────────────────────────────
+  const proto  = window.location.protocol;
+  const origin = window.location.origin;
+  const host   = window.location.host;   // e.g. "192.168.1.5:8080"
+  const href   = window.location.href;
+
+  const isFile  = proto === 'file:' || proto === 'null:' || proto === 'content:' ||
+                  href.startsWith('content://');
+  const isLocal = !isFile && (
+    host.startsWith('192.168.') || host.startsWith('10.') ||
+    host.startsWith('172.16.')  || host.startsWith('172.17.') ||
+    host.startsWith('172.18.')  || host.startsWith('172.19.') ||
+    host.startsWith('172.2')    || host.startsWith('172.3') ||
+    host === 'localhost'         || host.startsWith('127.')
+  );
+
+  // The redirect URL = exactly this page's origin (what Kite should redirect to)
+  const myRedirectUrl = isFile ? 'http://YOUR_PHONE_IP:8080' : origin;
+
+  // Update all redirect URL displays
+  const redirCode = q('#redirUrlCode');
+  if (redirCode) redirCode.textContent = myRedirectUrl;
+  const localDisp = q('#localRedirDisplay');
+  if (localDisp) localDisp.textContent = myRedirectUrl;
+  const detOrigin = q('#detectedOrigin');
+  if (detOrigin) detOrigin.textContent = origin;
+  const hostTag = q('#hostTag');
+  if (hostTag) hostTag.textContent = isLocal ? '📱 LOCAL SERVER · ' + host :
+                                     isFile  ? '⚠️ FILE MODE' :
+                                     '☁️ ' + host;
+
+  // Show local server banner
+  if (isLocal) {
+    const b = q('#localServerBanner');
+    if (b) b.style.display = 'block';
+  }
+
+  // Show warning for file:// mode
+  if (isFile && !tok) {
+    q('#localFileModal').style.display = 'flex';
+    return;
+  }
+
+  // ── Check URL for request_token (Zerodha redirect back here) ───
+  const params = new URLSearchParams(window.location.search);
+  const rt     = params.get('request_token');
+  const status = params.get('status');
+
+  if (rt) {
+    // Always clean the URL first
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    if (status === 'success') {
+      const k  = key  || LS.g('kite_key');
+      const sc = sec  || LS.g('kite_sec');
+
+      if (k && sc) {
+        // ✅ Have credentials → exchange immediately
+        S.apiKey = k; S.apiSecret = sc;
+        const banner = q('#autoSuccessBanner');
+        if (banner) banner.style.display = 'block';
+        (async () => {
+          showLoad('🔄 EXCHANGING TOKEN WITH ZERODHA...', 30);
+          try {
+            const newTok = await exchangeToken(rt);
+            S.token = newTok;
+            LS.s('kite_tok', newTok);
+            setLoad('✅ TOKEN SAVED! LAUNCHING...', 85);
+            await launch();
+          } catch(e) {
+            hideLoad();
+            if (banner) banner.style.display = 'none';
+            // Put URL back in paste box for manual retry
+            q('#redir').value = href;
+            q('#card3').classList.add('glowing');
+            showE('e3', '❌ Exchange failed: ' + e.message + '\n\nTry pasting the URL in Step 3 above.');
+          }
+        })();
+        return;
+      } else {
+        // ⚠️ No credentials saved yet — stash token and prompt user
+        _pendingRT = rt;
+        const b = q('#tokenFoundBanner');
+        if (b) b.style.display = 'block';
+        q('#card1').classList.add('glowing');
+        q('#card1').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+  }
+
+  // ── Auto-launch with saved token ───────────────────────────────
+  if (tok && key) {
+    S.token = tok;
+    launch();
+    return;
+  }
+})();
+
+// Called when user taps "Exchange Saved Token Now" after saving credentials
+function retryTokenFromUrl() {
+  if (!_pendingRT) return showE('e1', 'No pending token found. Please login again via Step 02.');
+  const k  = q('#apiKey').value.trim()  || LS.g('kite_key');
+  const sc = q('#apiSecret').value.trim() || LS.g('kite_sec');
+  if (!k || !sc) return showE('e1', 'Enter and save your API Key + Secret first.');
+  S.apiKey = k; S.apiSecret = sc;
+  LS.s('kite_key', k); LS.s('kite_sec', sc);
+  const rt = _pendingRT;
+  _pendingRT = null;
+  const banner = q('#autoSuccessBanner');
+  if (banner) banner.style.display = 'block';
+  const tokenBanner = q('#tokenFoundBanner');
+  if (tokenBanner) tokenBanner.style.display = 'none';
+  (async () => {
+    showLoad('🔄 EXCHANGING TOKEN...', 30);
+    try {
+      const newTok = await exchangeToken(rt);
+      S.token = newTok;
+      LS.s('kite_tok', newTok);
+      setLoad('✅ LAUNCHING TERMINAL...', 90);
+      await launch();
+    } catch(e) {
+      hideLoad();
+      if (banner) banner.style.display = 'none';
+      showE('em', '❌ Failed: ' + e.message + '. Token may have expired — try logging in again.');
+    }
+  })();
+}
+
+function copyCode(el) {
+  if (!el) return;
+  const url = el.textContent.trim();
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = el.textContent;
+    el.textContent = '✓ Copied!';
+    el.style.color = 'var(--green)';
+    setTimeout(() => { el.textContent = orig; el.style.color = ''; }, 2000);
+  }).catch(() => {
+    const range = document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+}
+function copyRedirectUrl(el) { copyCode(el); }
+
+
+// ─── TAB SYSTEM ───────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tpanel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.tbtab').forEach(b => b.classList.remove('act'));
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('show');
+  const btn = [...document.querySelectorAll('.tbtab')].find(b => b.getAttribute('onclick').includes("'"+id+"'"));
+  if (btn) btn.classList.add('act');
+  // Re-run analytics when switching to signals or institutional
+  if ((id === 'signals' || id === 'institutional') && S.chain.length) {
+    updateSignalPanel();
+    updateInstitutionalPanel();
+  }
+  if (id === 'cvd') {
+    updateCVDPanel();
+    updateInstitutionalVolumeTable();
+    setTimeout(drawCVDSparkline, 100); // wait for canvas to render
+  }
+}
+
+// ─── SIGNAL ENGINE ────────────────────────────────────────────────
+const SIG_LOG = [];
+
+function generateSignal() {
+  const ch = S.chain;
+  if (!ch.length || !S.spot) return null;
+
+  const totCE = ch.reduce((s,r) => s+(r.ce?.oi||0), 0);
+  const totPE = ch.reduce((s,r) => s+(r.pe?.oi||0), 0);
+  const pcr = totCE > 0 ? totPE/totCE : 1;
+
+  const atm = ch.find(r => r.atm);
+  const ceIv = atm?.ce?.iv || 0;
+  const peIv = atm?.pe?.iv || 0;
+  const skew = ceIv - peIv; // negative = puts more expensive = bearish
+
+  const mp = maxPain(ch);
+  const mpDiff = S.spot - mp; // positive = spot above max pain (bearish)
+
+  const totOIChgCE = ch.reduce((s,r) => s+(r.ce?.oiChg > 0 ? r.ce.oiChg : 0), 0);
+  const totOIChgPE = ch.reduce((s,r) => s+(r.pe?.oiChg > 0 ? r.pe.oiChg : 0), 0);
+  const oiRatio = totOIChgCE > 0 ? totOIChgPE / totOIChgCE : 1;
+
+  const vix = S.vix || 15;
+
+  // Score each factor -1 (bearish) to +1 (bullish)
+  const factors = {
+    pcr:      { score: pcr > 1.25 ? 1 : pcr < 0.75 ? -1 : 0, val: pcr.toFixed(2), label: 'PCR' },
+    skew:     { score: skew > 1 ? -1 : skew < -1 ? 1 : 0, val: skew.toFixed(1)+'%', label: 'IV Skew (CE-PE)' },
+    maxPain:  { score: mpDiff > 100 ? -1 : mpDiff < -100 ? 1 : 0, val: (mpDiff > 0 ? '+' : '')+mpDiff.toFixed(0)+'pts', label: 'Spot vs Max Pain' },
+    oiChange: { score: oiRatio > 1.3 ? 1 : oiRatio < 0.7 ? -1 : 0, val: 'PE/CE='+oiRatio.toFixed(2), label: 'OI Change Ratio' },
+    vix:      { score: vix < 13 ? -0.5 : vix > 20 ? 1 : 0, val: vix.toFixed(1), label: 'India VIX' },
+  };
+
+  const weights = { pcr: 3, skew: 2, maxPain: 2, oiChange: 2, vix: 1 };
+  let totalScore = 0, totalWeight = 0;
+  Object.keys(factors).forEach(k => {
+    totalScore += factors[k].score * weights[k];
+    totalWeight += weights[k];
+  });
+  const normalizedScore = totalScore / totalWeight; // -1 to +1
+
+  const confidence = Math.min(95, Math.round(Math.abs(normalizedScore) * 100 + 40));
+  const isBull = normalizedScore > 0.1;
+  const isBear = normalizedScore < -0.1;
+
+  let type = 'WAIT', direction = 'NEUTRAL';
+  let strikeInfo = '', entry = '', target = '', sl = '';
+
+  if (isBull) {
+    direction = 'BULLISH';
+    type = 'BUY CE';
+    // Find the first OTM CE strike with reasonable liquidity
+    const atmIdx = ch.findIndex(r => r.atm);
+    const strike1 = ch[Math.min(ch.length-1, atmIdx+1)];
+    const ltpEst = strike1?.ce?.ltp || 0;
+    strikeInfo = `Strike: ${strike1?.st?.toLocaleString('en-IN')} CE (1 strike above ATM)`;
+    entry = ltpEst.toFixed(0);
+    target = (ltpEst * 1.30).toFixed(0);
+    sl = (ltpEst * 0.70).toFixed(0);
+  } else if (isBear) {
+    direction = 'BEARISH';
+    type = 'BUY PE';
+    const atmIdx = ch.findIndex(r => r.atm);
+    const strike1 = ch[Math.max(0, atmIdx-1)];
+    const ltpEst = strike1?.pe?.ltp || 0;
+    strikeInfo = `Strike: ${strike1?.st?.toLocaleString('en-IN')} PE (1 strike below ATM)`;
+    entry = ltpEst.toFixed(0);
+    target = (ltpEst * 1.30).toFixed(0);
+    sl = (ltpEst * 0.70).toFixed(0);
+  }
+
+  return { type, direction, confidence, normalizedScore, factors, strikeInfo, entry, target, sl, pcr, ceIv, peIv, mp, totCE, totPE, oiRatio, vix };
+}
+
+function updateSignalPanel() {
+  const sig = generateSignal();
+  if (!sig) return;
+
+  const badge = q('#sigBadge');
+  const isCE = sig.type === 'BUY CE';
+  const isPE = sig.type === 'BUY PE';
+
+  badge.textContent = sig.type === 'WAIT'
+    ? '⏳ WAIT — LOW CONVICTION'
+    : (isCE ? '🟢 ' : '🔴 ') + sig.type + ' SIGNAL';
+  badge.className = 'sig-badge ' + (isCE ? 'buy-ce' : isPE ? 'buy-pe' : 'wait');
+
+  q('#sigStrike').textContent = sig.strikeInfo;
+  q('#confBar').style.width = sig.confidence + '%';
+  q('#confPct').textContent = sig.confidence + '%';
+
+  // Update key-value grid
+  const gridData = [
+    { k:'SPOT', v: S.spot.toLocaleString('en-IN',{maximumFractionDigits:2}), c:'' },
+    { k:'PCR', v: sig.pcr, c: sig.pcr > 1.2 ? 'g' : sig.pcr < 0.8 ? 'r' : 'a' },
+    { k:'ATM CE IV', v: (sig.ceIv||0).toFixed(1)+'%', c:'' },
+    { k:'ATM PE IV', v: (sig.peIv||0).toFixed(1)+'%', c:'' },
+    { k:'MAX PAIN', v: sig.mp?.toLocaleString('en-IN'), c:'a' },
+    { k:'VIX', v: sig.vix.toFixed(1), c: sig.vix > 20 ? 'r' : sig.vix < 13 ? 'g' : 'a' },
+  ];
+  if (sig.type !== 'WAIT') {
+    gridData.push({ k:'ENTRY ~', v:'₹'+sig.entry, c:'a' });
+    gridData.push({ k:'TARGET +30%', v:'₹'+sig.target, c:'g' });
+    gridData.push({ k:'STOP LOSS', v:'₹'+sig.sl, c:'r' });
+    gridData.push({ k:'R:R', v:'1:2', c:'g' });
+  }
+  q('#sigGrid').innerHTML = gridData.map(d =>
+    `<div class="sig-kv"><div class="sk">${d.k}</div><div class="sv ${d.c}">${d.v||'—'}</div></div>`
+  ).join('');
+
+  // Meta
+  q('#sigMeta').innerHTML =
+    `<div style="color:var(--amber)">DIRECTION: ${sig.direction}</div>` +
+    `<div>Score: ${(sig.normalizedScore*100).toFixed(0)}/100</div>` +
+    `<div style="font-size:8px;color:var(--gray2);">${new Date().toLocaleTimeString('en-IN')}</div>`;
+
+  // Reason
+  const reasons = [];
+  if (sig.factors.pcr.score > 0) reasons.push(`✅ PCR ${sig.factors.pcr.val} → Bullish (PUT BUILD)`);
+  else if (sig.factors.pcr.score < 0) reasons.push(`🔴 PCR ${sig.factors.pcr.val} → Bearish (CALL BUILD)`);
+  if (sig.factors.maxPain.score > 0) reasons.push(`✅ Spot below Max Pain (${sig.mp?.toLocaleString('en-IN')}) → Up pull`);
+  else if (sig.factors.maxPain.score < 0) reasons.push(`🔴 Spot above Max Pain → Down pull`);
+  if (sig.factors.skew.score > 0) reasons.push(`✅ IV Skew favoring CE → Bearish hedges cheaper`);
+  else if (sig.factors.skew.score < 0) reasons.push(`🔴 PE IV > CE IV → Institutions buying puts`);
+  if (sig.factors.oiChange.score !== 0) reasons.push(sig.factors.oiChange.score > 0
+    ? `✅ PE OI building faster → Bullish bias`
+    : `🔴 CE OI building faster → Bearish bias`);
+  q('#sigReason').innerHTML = `<strong>${sig.type !== 'WAIT' ? sig.type+' SIGNAL REASON:' : 'NO CLEAR SIGNAL:'}</strong><br>` + reasons.join('<br>');
+
+  // Factor bars
+  const fColors = { '-1': '#ef4444', '0': '#4a6478', '1': '#22c55e', '-0.5': '#f59e0b', '0.5': '#22c55e88' };
+  q('#factorRows').innerHTML = Object.values(sig.factors).map(f => {
+    const pct = Math.round((f.score + 1) / 2 * 100);
+    const col = fColors[String(f.score)] || '#f59e0b';
+    const label = f.score > 0 ? '🐂 BULL' : f.score < 0 ? '🐻 BEAR' : '⚖ NEU';
+    return `<div class="factor-row">
+      <span class="factor-lbl">${f.label}</span>
+      <div class="factor-track"><div class="factor-fill" style="width:${pct}%;background:${col};"></div></div>
+      <span class="factor-val" style="color:${col};font-size:9px;">${label}</span>
+      <span style="font-size:9px;color:var(--gray);margin-left:6px;">${f.val}</span>
+    </div>`;
+  }).join('');
+
+  // Log signal if conviction is decent and not same as last
+  if (sig.type !== 'WAIT' && sig.confidence >= 60) {
+    const lastLog = SIG_LOG[SIG_LOG.length - 1];
+    if (!lastLog || lastLog.type !== sig.type || (Date.now() - lastLog.ts) > 300000) {
+      const entry = { ...sig, ts: Date.now(), time: new Date().toLocaleTimeString('en-IN') };
+      SIG_LOG.push(entry);
+      renderSignalLog();
+    }
+  }
+}
+
+function renderSignalLog() {
+  if (!SIG_LOG.length) return;
+  q('#sigLog').innerHTML = [...SIG_LOG].reverse().map((s, i) => `
+    <tr>
+      <td style="color:var(--gray)">${s.time}</td>
+      <td><span class="pill ${s.type.includes('CE')?'ce':'pe'}">${s.type}</span></td>
+      <td style="color:var(--amber)">${s.strikeInfo?.split(':')[1]?.trim()||'—'}</td>
+      <td>₹${s.entry}</td>
+      <td style="color:var(--green)">₹${s.target}</td>
+      <td style="color:var(--red)">₹${s.sl}</td>
+      <td><span class="pill open">OPEN</span></td>
+    </tr>`).join('');
+}
+
+// ─── INSTITUTIONAL / SMART MONEY ─────────────────────────────────
+function updateInstitutionalPanel() {
+  const ch = S.chain;
+  if (!ch.length) return;
+
+  // OI walls — strikes with >2x average OI
+  const avgCE = ch.reduce((s,r) => s+(r.ce?.oi||0),0) / (ch.length||1);
+  const avgPE = ch.reduce((s,r) => s+(r.pe?.oi||0),0) / (ch.length||1);
+  const ceWalls = ch.filter(r => (r.ce?.oi||0) > avgCE * 2.0).sort((a,b) => (b.ce?.oi||0)-(a.ce?.oi||0));
+  const peWalls = ch.filter(r => (r.pe?.oi||0) > avgPE * 2.0).sort((a,b) => (b.pe?.oi||0)-(a.pe?.oi||0));
+
+  q('#oiWalls').innerHTML = `
+    <div style="font-size:8px;color:var(--gray);margin-bottom:6px;">
+      CE walls = RESISTANCE · PE walls = SUPPORT
+    </div>
+    <div style="margin-bottom:8px;">
+      <div style="font-size:8px;color:var(--green);margin-bottom:4px;letter-spacing:1px;">▲ CE RESISTANCE WALLS</div>
+      ${ceWalls.slice(0,4).map(r => `<span class="oi-wall-badge ce">${r.st?.toLocaleString('en-IN')} (${fmtOI(r.ce?.oi)})</span>`).join('')||'<span style="font-size:9px;color:var(--gray)">No significant wall</span>'}
+    </div>
+    <div>
+      <div style="font-size:8px;color:var(--red);margin-bottom:4px;letter-spacing:1px;">▼ PE SUPPORT WALLS</div>
+      ${peWalls.slice(0,4).map(r => `<span class="oi-wall-badge pe">${r.st?.toLocaleString('en-IN')} (${fmtOI(r.pe?.oi)})</span>`).join('')||'<span style="font-size:9px;color:var(--gray)">No significant wall</span>'}
+    </div>
+  `;
+
+  // Smart money signals
+  const totCE = ch.reduce((s,r) => s+(r.ce?.oi||0),0);
+  const totPE = ch.reduce((s,r) => s+(r.pe?.oi||0),0);
+  const pcr = totCE > 0 ? totPE/totCE : 1;
+  const totOIChgCE = ch.reduce((s,r) => s+(r.ce?.oiChg||0),0);
+  const totOIChgPE = ch.reduce((s,r) => s+(r.pe?.oiChg||0),0);
+  const atm = ch.find(r => r.atm);
+  const ceIv = atm?.ce?.iv || 0;
+  const peIv = atm?.pe?.iv || 0;
+  const mp = maxPain(ch);
+  const vix = S.vix || 0;
+  const mpDiff = S.spot - mp;
+
+  const oiSig = totOIChgPE > totOIChgCE * 1.3 ? { t:'PUT BUILD → BULLISH', c:'var(--green)' }
+    : totOIChgCE > totOIChgPE * 1.3 ? { t:'CALL BUILD → BEARISH', c:'var(--red)' }
+    : { t:'BALANCED', c:'var(--amber)' };
+
+  const velSig = Math.abs(totOIChgCE + totOIChgPE) > 0 ? { t:'OI ACTIVE', c:'var(--green)' } : { t:'LOW ACTIVITY', c:'var(--gray)' };
+  const skewSig = peIv > ceIv + 1 ? { t:'PUT SKEW → INST. FEAR', c:'var(--red)' }
+    : ceIv > peIv + 1 ? { t:'CALL SKEW → BULLISH TILT', c:'var(--green)' }
+    : { t:'NEUTRAL SKEW', c:'var(--amber)' };
+  const mpSig = mpDiff > 150 ? { t:`SPOT ▲${mpDiff.toFixed(0)}pts > MP → PULL DOWN`, c:'var(--red)' }
+    : mpDiff < -150 ? { t:`SPOT ▼${Math.abs(mpDiff).toFixed(0)}pts < MP → PUSH UP`, c:'var(--green)' }
+    : { t:`NEAR MAX PAIN (${mp?.toLocaleString('en-IN')})`, c:'var(--amber)' };
+  const vixSig = vix > 20 ? { t:`VIX ${vix.toFixed(1)} — HIGH FEAR`, c:'var(--red)' }
+    : vix < 13 ? { t:`VIX ${vix.toFixed(1)} — COMPLACENCY`, c:'var(--amber)' }
+    : { t:`VIX ${vix.toFixed(1)} — NORMAL`, c:'var(--green)' };
+
+  // Overall verdict
+  let bullPoints = 0, bearPoints = 0;
+  if (pcr > 1.25) bullPoints++; if (pcr < 0.75) bearPoints++;
+  if (totOIChgPE > totOIChgCE * 1.3) bullPoints++; if (totOIChgCE > totOIChgPE * 1.3) bearPoints++;
+  if (peIv > ceIv + 1) bearPoints++; if (ceIv > peIv + 1) bullPoints++;
+  if (mpDiff < -150) bullPoints++; if (mpDiff > 150) bearPoints++;
+  const verdict = bullPoints > bearPoints ? { t:'🐂 INSTITUTIONALLY BULLISH', c:'var(--green)' }
+    : bearPoints > bullPoints ? { t:'🐻 INSTITUTIONALLY BEARISH', c:'var(--red)' }
+    : { t:'⚖ MIXED / WAIT', c:'var(--amber)' };
+
+  // Bias meter
+  const cePct = Math.round(bearPoints / Math.max(1, bullPoints+bearPoints) * 100);
+  const pePct = 100 - cePct;
+  q('#biasCE').style.flex = pePct; // bull side
+  q('#biasPE').style.flex = cePct; // bear side
+  q('#instBiasText').textContent = verdict.t;
+  q('#instBiasText').style.color = verdict.c;
+
+  const s = (id, obj) => { q('#'+id).textContent = obj.t; q('#'+id).style.color = obj.c; };
+  s('smOI', oiSig); s('smVel', velSig); s('smSkew', skewSig);
+  s('smMP', mpSig); s('smVIX', vixSig); s('smVerdict', verdict);
+}
+
+// ─── FII/DII CALCULATOR ───────────────────────────────────────────
+function calcFiiDii() {
+  const fb = parseFloat(q('#fiiBuy').value)||0;
+  const fs = parseFloat(q('#fiiSell').value)||0;
+  const db = parseFloat(q('#diiBuy').value)||0;
+  const ds = parseFloat(q('#diiSell').value)||0;
+  const fNet = fb - fs;
+  const dNet = db - ds;
+  const total = fNet + dNet;
+
+  const fEl = q('#fiiNet'); fEl.textContent = (fNet >= 0 ? '+' : '') + fNet.toFixed(0) + ' Cr';
+  fEl.style.color = fNet >= 0 ? 'var(--green)' : 'var(--red)';
+  const dEl = q('#diiNet'); dEl.textContent = (dNet >= 0 ? '+' : '') + dNet.toFixed(0) + ' Cr';
+  dEl.style.color = dNet >= 0 ? 'var(--green)' : 'var(--red)';
+  const tEl = q('#combinedNet'); tEl.textContent = (total >= 0 ? '+' : '') + total.toFixed(0) + ' Cr';
+  tEl.style.color = total >= 0 ? 'var(--green)' : 'var(--red)';
+
+  const sig = q('#fiiSignal');
+  sig.style.display = 'block';
+  if (total > 1000) { sig.textContent = '🐂 STRONG BUY — Institutions Net Buyers (' + total.toFixed(0) + ' Cr)'; sig.style.color = 'var(--green)'; }
+  else if (total > 0) { sig.textContent = '🟡 MILD BUY — Marginal Institutional Inflow'; sig.style.color = 'var(--amber)'; }
+  else if (total > -1000) { sig.textContent = '🟡 MILD SELL — Marginal Outflow'; sig.style.color = 'var(--amber)'; }
+  else { sig.textContent = '🐻 STRONG SELL — Institutions Net Sellers (' + Math.abs(total).toFixed(0) + ' Cr)'; sig.style.color = 'var(--red)'; }
+}
+
+// ─── COMPOUNDER ───────────────────────────────────────────────────
+const COMP = {
+  startCapital: 10000,
+  target: 100000,
+  days: 30,
+  trades: [],
+  startDate: Date.now(),
+};
+
+// Load from localStorage
+(function loadComp() {
+  const saved = LS.g('comp_data');
+  if (saved) try {
+    const d = JSON.parse(saved);
+    COMP.trades = d.trades || [];
+    COMP.startDate = d.startDate || Date.now();
+    updateCompounder();
+  } catch(e) {}
+})();
+
+function saveComp() {
+  LS.s('comp_data', JSON.stringify({ trades: COMP.trades, startDate: COMP.startDate }));
+}
+
+function getCurrentCapital() {
+  if (!COMP.trades.length) return COMP.startCapital;
+  return COMP.startCapital + COMP.trades.reduce((s,t) => s + t.pnl, 0);
+}
+
+function logTrade() {
+  const underlying = q('#tUnderlying').value.trim() || 'NIFTY';
+  const type = q('#tType').value;
+  const entry = parseFloat(q('#tEntry').value);
+  const exit = parseFloat(q('#tExit').value);
+  const lots = parseInt(q('#tLots').value) || 1;
+  const lotSz = parseInt(q('#tLotSz').value) || 75;
+  const capUsed = parseFloat(q('#tCapital').value) || (entry * lots * lotSz);
+
+  if (!entry || exit === '' || isNaN(exit)) return showE('tradeErr', 'Enter entry and exit price.');
+  if (capUsed <= 0) return showE('tradeErr', 'Enter capital used.');
+  hideE('tradeErr');
+
+  const pnl = (exit - entry) * lots * lotSz;
+  const pnlPct = ((exit - entry) / entry * 100).toFixed(1);
+  const result = pnl > 0 ? 'TARGET' : pnl === 0 ? 'BE' : 'SL';
+
+  COMP.trades.push({
+    n: COMP.trades.length + 1,
+    date: new Date().toLocaleDateString('en-IN'),
+    underlying, type, entry, exit, lots, lotSz, capUsed,
+    pnl: Math.round(pnl), pnlPct, result,
+  });
+  saveComp();
+  updateCompounder();
+
+  // Clear form
+  q('#tEntry').value = ''; q('#tExit').value = '';
+  q('#tCapital').value = '';
+}
+
+function updateCompounder() {
+  const curCap = getCurrentCapital();
+  const target = COMP.target;
+  const pct = Math.min(100, (curCap / target * 100));
+  const totalPnl = curCap - COMP.startCapital;
+  const wins = COMP.trades.filter(t => t.pnl > 0).length;
+  const losses = COMP.trades.filter(t => t.pnl < 0).length;
+  const winRate = COMP.trades.length ? Math.round(wins / COMP.trades.length * 100) : 0;
+  const daysLeft = Math.max(0, COMP.days - Math.floor((Date.now() - COMP.startDate) / 86400000));
+  const remaining = Math.max(0, target - curCap);
+
+  // Required per remaining trade estimate
+  const tradesLeft = Math.max(1, daysLeft - COMP.trades.length);
+  const reqPct = curCap > 0 && remaining > 0
+    ? ((Math.pow(target/curCap, 1/Math.max(1,tradesLeft)) - 1) * 100).toFixed(1)
+    : '0.0';
+
+  q('#curCapital').textContent = '₹' + Math.round(curCap).toLocaleString('en-IN');
+  q('#goalFill').style.width = pct + '%';
+  q('#goalPct').textContent = pct.toFixed(1) + '%';
+  q('#daysLeft').textContent = daysLeft;
+  q('#tradesDone').textContent = COMP.trades.length;
+  q('#neededPct').textContent = reqPct + '%';
+  q('#winRate').textContent = COMP.trades.length ? winRate + '%' : '—';
+  q('#totalPnl').textContent = (totalPnl >= 0 ? '+' : '') + '₹' + Math.abs(Math.round(totalPnl)).toLocaleString('en-IN');
+  q('#totalPnl').style.color = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+  q('#toTarget').textContent = '₹' + Math.round(remaining).toLocaleString('en-IN');
+
+  renderMiniChart();
+  renderTradeLog();
+}
+
+function renderMiniChart() {
+  const trades = COMP.trades;
+  const chart = q('#miniChart');
+  let running = COMP.startCapital;
+  const points = [running];
+  trades.forEach(t => { running += t.pnl; points.push(Math.max(0, running)); });
+
+  const maxVal = Math.max(...points, COMP.target);
+  const minVal = Math.min(...points) * 0.9;
+  const range = maxVal - minVal;
+
+  chart.innerHTML = points.map((v, i) => {
+    const h = Math.max(5, ((v - minVal) / range * 90)).toFixed(0);
+    const isLast = i === points.length - 1;
+    const isWin = i > 0 ? points[i] > points[i-1] : null;
+    const cls = isLast ? 'cur' : isWin === null ? '' : isWin ? 'w' : 'l';
+    return `<div class="mini-bar ${cls}" style="height:${h}%;" title="₹${Math.round(v).toLocaleString('en-IN')}"></div>`;
+  }).join('');
+}
+
+function renderTradeLog() {
+  if (!COMP.trades.length) {
+    q('#tradeLog').innerHTML = '<tr><td colspan="9" style="color:var(--gray);padding:16px;text-align:center;">No trades logged yet.</td></tr>';
+    return;
+  }
+  q('#tradeLog').innerHTML = [...COMP.trades].reverse().map(t => `
+    <tr>
+      <td style="color:var(--gray)">#${t.n}</td>
+      <td style="font-size:9px;color:var(--gray)">${t.date}</td>
+      <td style="color:var(--amber)">${t.underlying}</td>
+      <td><span class="pill ${t.type==='CE'?'ce':'pe'}">${t.type}</span></td>
+      <td>₹${t.entry}</td>
+      <td>₹${t.exit}</td>
+      <td style="color:${t.pnl>=0?'var(--green)':'var(--red)'};font-weight:700">
+        ${t.pnl>=0?'+':''}₹${Math.abs(t.pnl).toLocaleString('en-IN')} (${t.pnlPct}%)
+      </td>
+      <td style="font-size:9px;color:var(--gray)">₹${t.capUsed?.toLocaleString('en-IN')}</td>
+      <td><span class="pill ${t.result==='TARGET'?'hit':t.result==='SL'?'sl':'open'}">${t.result}</span></td>
+    </tr>`).join('');
+}
+
+function resetCompounder() {
+  if (!confirm('Reset all trade history? This cannot be undone.')) return;
+  COMP.trades = [];
+  COMP.startDate = Date.now();
+  saveComp();
+  updateCompounder();
+}
+
+// ─── CVD & INSTITUTIONAL VOLUME ENGINE ───────────────────────────
+const CVD = {
+  history: [],          // [{ts, buyVol, sellVol, delta, cumDelta, spot}]
+  cumDelta: 0,
+  sessionBuy: 0,
+  sessionSell: 0,
+  prevChain: {},        // prevChain[strike] = {ceOI, peOI, ceLTP, peLTP}
+  instEvents: [],       // detected institutional absorption events
+};
+
+function calcCVDFromChain(chain) {
+  if (!chain.length) return;
+
+  let buyVol = 0, sellVol = 0;
+
+  chain.forEach(row => {
+    // Depth-based CVD: sum bid qty (buy pressure) vs ask qty (sell pressure)
+    // Kite gives depth in quote data — we approximate from OI change direction
+    const ceLTP = row.ce?.ltp || 0;
+    const peLTP = row.pe?.ltp || 0;
+    const ceVol = row.ce?.vol || 0;
+    const peVol = row.pe?.vol || 0;
+    const ceChg = row.ce?.chg || 0;
+    const peChg = row.pe?.chg || 0;
+
+    // CE: if CE price rising → call buying (bullish). If falling → call selling (bearish)
+    // PE: if PE price rising → put buying (bearish). If falling → put selling (bullish)
+    if (ceChg > 0)      buyVol  += ceVol * 0.6;  // calls going up = buyers dominating
+    else if (ceChg < 0) sellVol += ceVol * 0.6;  // calls going down = sellers
+    if (peChg < 0)      buyVol  += peVol * 0.4;  // puts going down = market buying
+    else if (peChg > 0) sellVol += peVol * 0.4;  // puts going up = market selling
+
+    // ATM depth if available
+    if (row.atm) {
+      // bid-ask imbalance at ATM CE
+      const ceBid = row.ce?.ask || 0;  // we use ask/bid fields stored in chain
+      const ceAsk = row.ce?.bid || 0;
+      const peBid = row.pe?.ask || 0;
+      const peAsk = row.pe?.bid || 0;
+    }
+  });
+
+  const delta = buyVol - sellVol;
+  CVD.cumDelta += delta;
+  CVD.sessionBuy += buyVol;
+  CVD.sessionSell += sellVol;
+
+  CVD.history.push({
+    ts: Date.now(),
+    buyVol: Math.round(buyVol),
+    sellVol: Math.round(sellVol),
+    delta: Math.round(delta),
+    cumDelta: Math.round(CVD.cumDelta),
+    spot: S.spot,
+  });
+  if (CVD.history.length > 200) CVD.history.shift();
+
+  updateCVDPanel();
+  detectInstitutionalAbsorption(chain);
+}
+
+function detectInstitutionalAbsorption(chain) {
+  // Threshold: OI change > 1.5x average OI change AND price change < 0.3%
+  const avgOIChg = chain.reduce((s, r) => {
+    return s + Math.abs(r.ce?.oiChg || 0) + Math.abs(r.pe?.oiChg || 0);
+  }, 0) / Math.max(1, chain.length * 2);
+
+  const threshold = Math.max(avgOIChg * 1.5, 50000); // min 50k contracts
+  const instStrikes = [];
+  const lotSz = S.lotSize || 75;
+
+  chain.forEach(row => {
+    const ceOIChg = row.ce?.oiChg || 0;
+    const peOIChg = row.pe?.oiChg || 0;
+    const cePriceChg = Math.abs(row.ce?.chg || 0);
+    const pePriceChg = Math.abs(row.pe?.chg || 0);
+    const ceLTP = row.ce?.ltp || 0;
+    const peLTP = row.pe?.ltp || 0;
+
+    // CE absorption: large OI add + small price move = writing (bearish) or accumulation
+    if (ceOIChg > threshold && cePriceChg < ceLTP * 0.003) {
+      // Large CE OI build with stable price = institutions writing calls (bearish) or covering shorts (bullish)
+      // If OI building + price falling = writing = bearish
+      // If OI building + price rising = buying = bullish
+      const isWrite = (row.ce?.chg || 0) <= 0;
+      instStrikes.push({
+        strike: row.st,
+        type: 'CE',
+        oiChg: ceOIChg,
+        priceChg: (row.ce?.chg || 0),
+        ltp: ceLTP,
+        direction: isWrite ? 'SHORT' : 'LONG',
+        signal: isWrite ? '🐻 CALL WRITING (Institutions selling CE → Bearish)' : '🐂 CALL BUYING (Institutions buying CE → Bullish)',
+        estValue: Math.round(ceOIChg * ceLTP * lotSz),
+        confidence: Math.min(95, Math.round((ceOIChg / threshold) * 60 + 35)),
+      });
+    }
+
+    // PE absorption: large OI add + small price move
+    if (peOIChg > threshold && pePriceChg < peLTP * 0.003) {
+      const isWrite = (row.pe?.chg || 0) <= 0;
+      instStrikes.push({
+        strike: row.st,
+        type: 'PE',
+        oiChg: peOIChg,
+        priceChg: (row.pe?.chg || 0),
+        ltp: peLTP,
+        direction: isWrite ? 'SHORT' : 'LONG',
+        signal: isWrite ? '🐂 PUT WRITING (Institutions selling PE → Bullish)' : '🐻 PUT BUYING (Institutions buying PE → Bearish)',
+        estValue: Math.round(peOIChg * peLTP * lotSz),
+        confidence: Math.min(95, Math.round((peOIChg / threshold) * 60 + 35)),
+      });
+    }
+  });
+
+  // Merge with existing events, deduplicate by strike+type
+  instStrikes.forEach(ev => {
+    const existing = CVD.instEvents.findIndex(e => e.strike === ev.strike && e.type === ev.type);
+    if (existing >= 0) CVD.instEvents[existing] = { ...ev, ts: Date.now() };
+    else { ev.ts = Date.now(); ev.isNew = true; CVD.instEvents.push(ev); }
+  });
+  // Keep last 50 events
+  if (CVD.instEvents.length > 50) CVD.instEvents = CVD.instEvents.slice(-50);
+
+  updateInstitutionalVolumeTable();
+}
+
+function fmtCr(val) {
+  if (!val) return '—';
+  const abs = Math.abs(val);
+  if (abs >= 1e7) return (val/1e7).toFixed(2) + ' Cr';
+  if (abs >= 1e5) return (val/1e5).toFixed(1) + ' L';
+  return val.toLocaleString('en-IN');
+}
+
+function updateCVDPanel() {
+  const cvd = CVD.cumDelta;
+  const isBull = cvd > 0;
+  const cvdEl = q('#cvdValue');
+  if (!cvdEl) return;
+
+  cvdEl.textContent = (cvd > 0 ? '+' : '') + Math.round(cvd).toLocaleString('en-IN');
+  cvdEl.style.color = isBull ? 'var(--green)' : cvd < 0 ? 'var(--red)' : 'var(--amber)';
+
+  const sub = isBull
+    ? '📈 BUY PRESSURE DOMINANT — Bullish flow'
+    : cvd < 0 ? '📉 SELL PRESSURE DOMINANT — Bearish flow'
+    : '⚖ BALANCED — No directional bias';
+  const subEl = q('#cvdSubtitle');
+  if (subEl) { subEl.textContent = sub; subEl.style.color = isBull ? 'var(--green)' : cvd < 0 ? 'var(--red)' : 'var(--amber)'; }
+
+  const sessEl = q('#cvdSession');
+  if (sessEl) sessEl.textContent = `BUY: ${Math.round(CVD.sessionBuy).toLocaleString('en-IN')} / SELL: ${Math.round(CVD.sessionSell).toLocaleString('en-IN')}`;
+
+  const total = CVD.sessionBuy + CVD.sessionSell;
+  const totalEl = q('#cvdTotal');
+  if (totalEl) totalEl.textContent = total ? Math.round(total).toLocaleString('en-IN') : '—';
+
+  // Buy/Sell bar
+  const buyPct = total > 0 ? (CVD.sessionBuy / total * 100) : 50;
+  const sellPct = 100 - buyPct;
+  const bf = q('#cvdBuyFill'), sf = q('#cvdSellFill');
+  if (bf) bf.style.width = buyPct.toFixed(1) + '%';
+  if (sf) sf.style.width = sellPct.toFixed(1) + '%';
+
+  // Header bar metrics
+  const mCVD = q('#mCVD');
+  if (mCVD) { mCVD.textContent = (cvd>0?'+':'')+Math.round(cvd).toLocaleString('en-IN'); mCVD.style.color = isBull?'var(--green)':cvd<0?'var(--red)':'var(--amber)'; }
+
+  // Sparkline
+  drawCVDSparkline();
+}
+
+function drawCVDSparkline() {
+  const canvas = q('#cvdCanvas');
+  if (!canvas || !CVD.history.length) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 300;
+  const H = 50;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  const pts = CVD.history.slice(-80);
+  if (pts.length < 2) return;
+  const vals = pts.map(p => p.cumDelta);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const range = Math.max(1, maxV - minV);
+  const zero = H - ((0 - minV) / range * H);
+
+  // Fill gradient
+  const lastV = vals[vals.length - 1];
+  const isBull = lastV >= 0;
+  const grd = ctx.createLinearGradient(0, 0, 0, H);
+  if (isBull) {
+    grd.addColorStop(0, 'rgba(34,197,94,0.4)');
+    grd.addColorStop(1, 'rgba(34,197,94,0.02)');
+  } else {
+    grd.addColorStop(0, 'rgba(239,68,68,0.02)');
+    grd.addColorStop(1, 'rgba(239,68,68,0.4)');
+  }
+
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    const x = (i / (pts.length - 1)) * W;
+    const y = H - ((p.cumDelta - minV) / range * H);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  ctx.fillStyle = grd; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    const x = (i / (pts.length - 1)) * W;
+    const y = H - ((p.cumDelta - minV) / range * H);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = isBull ? '#22c55e' : '#ef4444';
+  ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Zero line
+  if (minV < 0 && maxV > 0) {
+    const zy = H - ((0 - minV) / range * H);
+    ctx.beginPath(); ctx.moveTo(0, zy); ctx.lineTo(W, zy);
+    ctx.strokeStyle = '#4a647866'; ctx.lineWidth = 1; ctx.setLineDash([4,4]); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function updateInstitutionalVolumeTable() {
+  // Summary metrics
+  const longEvents = CVD.instEvents.filter(e => e.direction === 'LONG');
+  const shortEvents = CVD.instEvents.filter(e => e.direction === 'SHORT');
+  const longVol = longEvents.reduce((s,e) => s + e.oiChg, 0);
+  const shortVol = shortEvents.reduce((s,e) => s + e.oiChg, 0);
+
+  const lvEl = q('#instLongVol');
+  const svEl = q('#instShortVol');
+  const ndEl = q('#instNetDir');
+  const nvEl = q('#instNetVal');
+  if (lvEl) lvEl.textContent = fmtOI(longVol) || '0';
+  if (svEl) svEl.textContent = fmtOI(shortVol) || '0';
+
+  const net = longVol - shortVol;
+  if (ndEl) {
+    if (net > 0) { ndEl.textContent = '🐂 LONG'; ndEl.style.color = 'var(--green)'; }
+    else if (net < 0) { ndEl.textContent = '🐻 SHORT'; ndEl.style.color = 'var(--red)'; }
+    else { ndEl.textContent = '⚖ NEUTRAL'; ndEl.style.color = 'var(--amber)'; }
+  }
+  if (nvEl) nvEl.textContent = 'Net: ' + (net >= 0 ? '+' : '') + fmtOI(Math.abs(net));
+
+  // Analytics bar
+  const mABS = q('#mABS');
+  if (mABS) mABS.textContent = CVD.instEvents.length ? CVD.instEvents.length + ' events' : '—';
+  const mIDIR = q('#mIDIR');
+  if (mIDIR) {
+    if (net > 0) { mIDIR.textContent = '🐂 LONG'; mIDIR.style.color = 'var(--green)'; }
+    else if (net < 0) { mIDIR.textContent = '🐻 SHORT'; mIDIR.style.color = 'var(--red)'; }
+    else { mIDIR.textContent = '—'; mIDIR.style.color = 'var(--gray)'; }
+  }
+
+  // Absorption strikes summary
+  const absEl = q('#absorptionStrikes');
+  if (absEl && CVD.instEvents.length) {
+    absEl.innerHTML = CVD.instEvents.slice(-8).reverse().map(e => `
+      <div style="background:var(--bg1);border:1px solid var(--border);border-radius:6px;padding:9px 12px;margin-bottom:6px;${e.isNew?'border-color:#3b82f677;':''}" class="${e.isNew?'inst-new':''}">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+          <div>
+            <span style="font-size:12px;font-weight:800;color:var(--amber);">${e.strike.toLocaleString('en-IN')}</span>
+            <span class="pill ${e.type==='CE'?'ce':'pe'}" style="margin-left:6px;">${e.type}</span>
+            <span class="absorb-badge">ABSORPTION</span>
+          </div>
+          <span class="vol-dir ${e.direction==='LONG'?'long':'short'}">${e.direction === 'LONG' ? '▲ LONG' : '▼ SHORT'}</span>
+        </div>
+        <div style="font-size:9px;color:var(--gray);margin-top:6px;">${e.signal}</div>
+        <div style="display:flex;gap:16px;margin-top:6px;font-size:9px;">
+          <span style="color:var(--gray);">OI Change: <strong style="color:var(--white)">${fmtOI(e.oiChg)}</strong></span>
+          <span style="color:var(--gray);">ΔPrice: <strong style="color:${Math.abs(e.priceChg)<0.5?'var(--green)':'var(--red)'}">${e.priceChg>0?'+':''}${e.priceChg?.toFixed(2)||'0'}</strong></span>
+          <span style="color:var(--gray);">Est. Value: <strong style="color:#93c5fd">${fmtCr(e.estValue)}</strong></span>
+          <span style="color:var(--gray);">Conf: <strong style="color:var(--amber)">${e.confidence}%</strong></span>
+        </div>
+      </div>`).join('');
+    // Clear isNew flag
+    CVD.instEvents.forEach(e => { e.isNew = false; });
+  } else if (absEl) {
+    absEl.innerHTML = '<div style="font-size:10px;color:var(--gray);padding:8px 0;">No institutional absorption detected yet — refresh chain data during market hours.</div>';
+  }
+
+  // Main table
+  const tbl = q('#instVolTable');
+  if (!tbl) return;
+  if (!CVD.instEvents.length) {
+    tbl.innerHTML = '<tr><td colspan="9" style="color:var(--gray);padding:20px;text-align:center;">No institutional activity detected yet</td></tr>';
+    return;
+  }
+
+  const sorted = [...CVD.instEvents].sort((a,b) => b.oiChg - a.oiChg);
+  tbl.innerHTML = sorted.map(e => {
+    const rowClass = e.direction === 'LONG' ? 'inst-highlight' : 'inst-highlight-bear';
+    const dirClass = e.direction === 'LONG' ? 'long' : 'short';
+    const pChg = e.priceChg || 0;
+    const pCol = Math.abs(pChg) < 0.3 ? 'var(--green)' : 'var(--amber)';
+    return `<tr class="${rowClass}">
+      <td style="font-weight:800;color:var(--amber)">${e.strike.toLocaleString('en-IN')}</td>
+      <td><span class="pill ${e.type==='CE'?'ce':'pe'}">${e.type}</span></td>
+      <td style="color:var(--white)">${fmtOI(e.oiChg + 0)}</td>
+      <td style="color:${e.oiChg>0?'var(--green)':'var(--red)'}">+${fmtOI(e.oiChg)}</td>
+      <td style="color:var(--blue)">${fmtOI(e.oiChg)}</td>
+      <td style="color:${pCol}">${pChg>0?'+':''}${pChg.toFixed(2)}</td>
+      <td style="font-size:9px;color:${e.direction==='LONG'?'var(--green)':'var(--red)'}">
+        ${Math.abs(pChg) < 0.3 ? '<span class="absorb-badge">STEALTH</span>' : ''} 
+        ${e.direction==='LONG'?'ACCUMULATE':'DISTRIBUTE'}
+      </td>
+      <td><span class="vol-dir ${dirClass}">${e.direction==='LONG'?'▲ LONG':'▼ SHORT'}</span></td>
+      <td style="color:#93c5fd;font-weight:700">${fmtCr(e.estValue)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── HOOK CVD into chain refresh ──────────────────────────────────
+// ─── HOOK INTO EXISTING REFRESH ───────────────────────────────────
+const _origCalcAnalytics = calcAnalytics;
+function calcAnalytics() {
+  _origCalcAnalytics();
+  setTimeout(() => {
+    updateSignalPanel();
+    updateInstitutionalPanel();
+    // CVD & institutional volume — feed live chain data
+    if (S.chain && S.chain.length) {
+      calcCVDFromChain(S.chain);
+    }
+  }, 200);
+}
+
+// Auto-fill capital field from entry×lots×lotsize
+function setupTradeFormAutofill() {
+  const doFill = () => {
+    const entry = parseFloat(q('#tEntry').value)||0;
+    const lots = parseInt(q('#tLots').value)||1;
+    const lotSz = parseInt(q('#tLotSz').value)||75;
+    if (entry && lots && lotSz) q('#tCapital').value = (entry*lots*lotSz).toFixed(0);
+  };
+  ['#tEntry','#tLots','#tLotSz'].forEach(id => {
+    const el = q(id); if (el) el.addEventListener('input', doFill);
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  setupTradeFormAutofill();
+  updateCompounder();
+});
+
+function dismissLocalFileModal() {
+  q('#localFileModal').style.display = 'none';
+}
+
+function showManualTokenHelp() {
+  // Pre-fill API key into the script if available
+  const key = LS.g('kite_key') || 'YOUR_API_KEY';
+  const sec = LS.g('kite_sec') || 'YOUR_API_SECRET';
+  q('#pyScript').textContent =
+`# 1. Install (run in terminal/cmd once):
+#    pip install kiteconnect
+
+from kiteconnect import KiteConnect
+
+API_KEY    = "${key}"
+API_SECRET = "${sec}"
+
+kite = KiteConnect(api_key=API_KEY)
+print("Open this URL and login:")
+print(kite.login_url())
+
+# After login, copy request_token from redirect URL:
+request_token = "PASTE_REQUEST_TOKEN_HERE"
+
+data = kite.generate_session(request_token, api_secret=API_SECRET)
+print("\\nACCESS TOKEN:", data["access_token"])`;
+  q('#pyModal').style.display = 'flex';
+}
+
+function copyPyScript() {
+  const txt = q('#pyScript').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.querySelector('#pyModal .btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy Script'; }, 2000);
+  }).catch(() => {
+    // Fallback: select text
+    const range = document.createRange();
+    range.selectNode(q('#pyScript'));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+}
+</script>
+</body>
+</html>
